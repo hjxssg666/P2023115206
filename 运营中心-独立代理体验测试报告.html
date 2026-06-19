@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【学习工作】星河粒子 · 中国意境沉浸展 - Trae AI 创造力大赛报名帖</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    min-height: 100%;
+    background: #0a0705;
+    font-family: 'Noto Serif SC', 'STSong', serif;
+    color: #d4af6a;
+    line-height: 1.8;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  /* 顶部 banner */
+  .banner {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #bgCanvas, #canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #bgCanvas { z-index: 1; }
+  #canvas { z-index: 2; }
+
+  .banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(10, 7, 5, 0.5) 100%);
+  }
+
+  .trae-badge {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 20px;
+    background: rgba(15, 10, 5, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 999px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    color: #d4af6a;
+    letter-spacing: 3px;
+  }
+
+  .trae-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #00d4ff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00d4ff;
+  }
+
+  .banner-title {
+    font-family: 'Ma Shan Zheng', 'STKaiti', serif;
+    font-size: 96px;
+    background: linear-gradient(180deg, #f4d77e 0%, #d4af6a 50%, #8b6929 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 16px;
+    text-shadow: 0 0 60px rgba(212, 175, 106, 0.3);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .banner-subtitle {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 18px;
+    color: #a89673;
+    letter-spacing: 8px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .banner-tag {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(212, 175, 106, 0.1);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 999px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #f4d77e;
+    letter-spacing: 4px;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #8a7a5c;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-align: center;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+    50% { transform: translateX(-50%) translateY(-10px); opacity: 1; }
+  }
+
+  /* 主内容容器 */
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 80px 30px 60px;
+  }
+
+  /* 板块 */
+  .section {
+    background: linear-gradient(180deg, rgba(26, 18, 8, 0.6) 0%, rgba(10, 7, 5, 0.4) 100%);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 12px;
+    padding: 50px 50px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af6a, transparent);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(212, 175, 106, 0.15);
+  }
+
+  .section-num {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 48px;
+    color: #d4af6a;
+    opacity: 0.5;
+    line-height: 1;
+  }
+
+  .section-heading {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 32px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+    flex: 1;
+  }
+
+  .section-icon {
+    font-size: 24px;
+    color: #d4af6a;
+  }
+
+  /* 信息项 */
+  .info-row {
+    display: flex;
+    margin-bottom: 24px;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .info-label {
+    flex-shrink: 0;
+    width: 120px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    text-align: right;
+    padding-top: 6px;
+  }
+
+  .info-content {
+    flex: 1;
+    font-size: 15px;
+    color: #c4ad7a;
+    line-height: 2;
+  }
+
+  .info-content strong {
+    color: #f4d77e;
+    font-weight: 500;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(212, 175, 106, 0.1);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 4px;
+    color: #d4af6a;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .tag.primary {
+    background: linear-gradient(180deg, rgba(244, 215, 126, 0.2), rgba(212, 175, 106, 0.1));
+    border-color: #d4af6a;
+    color: #f4d77e;
+  }
+
+  /* 大字标题 */
+  .big-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    color: #f4d77e;
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+  }
+
+  .sub-title {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #8a7a5c;
+    letter-spacing: 4px;
+  }
+
+  /* 场景展示 */
+  .scenes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .scene-card {
+    background: rgba(15, 10, 5, 0.5);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 8px;
+    padding: 20px 22px;
+    transition: all 0.3s ease;
+  }
+
+  .scene-card:hover {
+    border-color: #d4af6a;
+    transform: translateY(-2px);
+    background: rgba(212, 175, 106, 0.05);
+  }
+
+  .scene-card-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 22px;
+    color: #f4d77e;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+
+  .scene-card-desc {
+    font-size: 13px;
+    color: #8a7a5c;
+    line-height: 1.8;
+  }
+
+  .scene-card-poem {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 14px;
+    color: #d4af6a;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(212, 175, 106, 0.2);
+    font-style: italic;
+  }
+
+  /* 价值点 */
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .value-card {
+    background: rgba(15, 10, 5, 0.5);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 8px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .value-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .value-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 20px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .value-desc {
+    font-size: 12px;
+    color: #8a7a5c;
+    line-height: 1.8;
+  }
+
+  /* 交互功能 */
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(15, 10, 5, 0.4);
+    border-left: 3px solid #d4af6a;
+    border-radius: 4px;
+  }
+
+  .feature-num {
+    flex-shrink: 0;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 28px;
+    color: #d4af6a;
+    line-height: 1;
+  }
+
+  .feature-content {
+    flex: 1;
+  }
+
+  .feature-title {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 15px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: #a89673;
+    line-height: 1.8;
+  }
+
+  /* 技术栈 */
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .tech-tag {
+    padding: 6px 14px;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    color: #6dc8e8;
+    border-radius: 4px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* 复选栏 */
+  .checklist {
+    list-style: none;
+    margin-top: 16px;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #c4ad7a;
+  }
+
+  .checklist li::before {
+    content: '✓';
+    flex-shrink: 0;
+    color: #d4af6a;
+    font-weight: bold;
+  }
+
+  /* 报名信息 */
+  .register-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .info-box {
+    background: rgba(15, 10, 5, 0.5);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+
+  .info-box-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    color: #8a7a5c;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .info-box-value {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 22px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+  }
+
+  /* 复制按钮 */
+  .copy-block {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .copy-block pre {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: #c4ad7a;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.8;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 14px;
+    background: rgba(212, 175, 106, 0.15);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 4px;
+    color: #d4af6a;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+  }
+
+  .copy-btn:hover {
+    background: rgba(212, 175, 106, 0.3);
+    color: #f4d77e;
+  }
+
+  /* CTA 区域 */
+  .cta-area {
+    text-align: center;
+    padding: 60px 30px;
+    margin-top: 40px;
+    background: linear-gradient(180deg, rgba(212, 175, 106, 0.05) 0%, transparent 100%);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 12px;
+  }
+
+  .cta-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+  }
+
+  .cta-subtitle {
+    font-size: 14px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .cta-btn {
+    padding: 14px 36px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    border: none;
+    border-radius: 999px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .cta-btn.primary {
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    color: #0a0705;
+    box-shadow: 0 4px 20px rgba(212, 175, 106, 0.3);
+  }
+
+  .cta-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 175, 106, 0.5);
+  }
+
+  .cta-btn.secondary {
+    background: transparent;
+    color: #d4af6a;
+    border: 1px solid #d4af6a;
+  }
+
+  .cta-btn.secondary:hover {
+    background: rgba(212, 175, 106, 0.1);
+  }
+
+  /* 步骤流程 */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .step {
+    text-align: center;
+    padding: 24px 16px;
+    background: rgba(15, 10, 5, 0.5);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .step-num {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 36px;
+    color: #d4af6a;
+    margin-bottom: 8px;
+  }
+
+  .step-title {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .step-desc {
+    font-size: 11px;
+    color: #8a7a5c;
+    line-height: 1.6;
+  }
+
+  /* 预览区 */
+  .preview-frame {
+    margin-top: 24px;
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    background: #000;
+    position: relative;
+  }
+
+  .preview-frame::before {
+    content: '⋆⋆⋆ LIVE DEMO ⋆⋆⋆';
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 5;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 11px;
+    color: #d4af6a;
+    letter-spacing: 3px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(212, 175, 106, 0.3);
+  }
+
+  .preview-frame iframe {
+    width: 100%;
+    height: 540px;
+    border: none;
+    display: block;
+  }
+
+  /* footer */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #5a4c2e;
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .banner-title { font-size: 56px; letter-spacing: 8px; }
+    .banner-subtitle { font-size: 14px; letter-spacing: 4px; }
+    .container { padding: 40px 16px 30px; }
+    .section { padding: 30px 24px; }
+    .section-heading { font-size: 24px; }
+    .info-row { flex-direction: column; gap: 4px; }
+    .info-label { text-align: left; width: auto; }
+    .scenes-grid, .value-grid, .register-info { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: repeat(2, 1fr); }
+    .preview-frame iframe { height: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部 banner 区 - 粒子艺术展示 -->
+<div class="banner">
+  <canvas id="bgCanvas"></canvas>
+  <canvas id="canvas"></canvas>
+
+  <div class="banner-overlay">
+    <div class="trae-badge">TRAE AI 创造力大赛 · 参赛作品</div>
+    <h1 class="banner-title">星河粒子</h1>
+    <p class="banner-subtitle">中 国 意 境 沉 浸 展</p>
+    <span class="banner-tag">「 学 习 工 作 」赛 道 · 报 名 帖</span>
+  </div>
+
+  <div class="scroll-hint">↓ 滚 动 查 看 报 名 帖 ↓</div>
+</div>
+
+<!-- 报名帖内容 -->
+<div class="container">
+
+  <!-- 帖子头部 -->
+  <div class="section" style="text-align: center; padding: 50px 30px;">
+    <div class="trae-badge" style="position: static; transform: none; display: inline-flex; margin-bottom: 24px;">
+      <span style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50%; box-shadow: 0 0 8px #00d4ff;"></span>
+      <span>TRAE AI 创 造 力 大 赛 · 报 名 帖</span>
+    </div>
+    <h2 class="big-title">星 河 粒 子 · 中 国 意 境 沉 浸 展</h2>
+    <p class="sub-title">让 中 国 传 统 文 化 在 粒 子 中 复 活</p>
+  </div>
+
+  <!-- 第 1 部分：创意名称 + 创意介绍 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">壹</span>
+      <h3 class="section-heading">创 意 名 称 与 介 绍</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">创意名称</div>
+      <div class="info-content"><strong>星河粒子 · 中国意境沉浸展</strong></div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">产品形态</div>
+      <div class="info-content">单文件 HTML 网页应用（可嵌入任何网站 / 公众号 / 教学平台）</div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">想解决<br>什么问题</div>
+      <div class="info-content">
+        传统文化在数字时代常以"博物馆玻璃柜"的形式存在，普通人接触门槛高、形式枯燥、缺乏情感连接。年轻人爱看弹幕短视频，却很难沉下心去品一幅《千里江山图》、一首《枫桥夜泊》。
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">为什么会<br>想到做这个</div>
+      <div class="info-content">
+        粒子艺术（Particle Art）是当下年轻群体最喜爱的视觉语言之一。当 8000 颗金色粒子在屏幕上重新凝聚成青绿山水、枫桥明月、牡丹花瓣时，<strong>传统文化不再是文字与图像，而是可以被"召唤"的意境</strong>。让用户在 30 秒内被东方美学击中，便是这个项目的初心。
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 2 部分：目标用户及痛点 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">贰</span>
+      <h3 class="section-heading">目 标 用 户 与 痛 点</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">面向<br>哪些用户</div>
+      <div class="info-content">
+        <div class="tag-row">
+          <span class="tag">文 化 爱 好 者</span>
+          <span class="tag">设 计 师 / 美 术 生</span>
+          <span class="tag">国 风 内 容 创 作 者</span>
+          <span class="tag">青 少 年 素 养 课 程</span>
+          <span class="tag">景 区 / 博 物 馆 数 字 展</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">在什么<br>场景下使用</div>
+      <div class="info-content">
+        <ul class="checklist">
+          <li>个人冥想 / 茶歇 / 咖啡时光的氛围陪衬</li>
+          <li>汉服 / 国风 / 古琴社群的视觉内容创作</li>
+          <li>中小学传统文化课的"开场动画"使用</li>
+          <li>景区公众号、文化展会的引流 H5 页面</li>
+          <li>设计师 / 视频创作者的灵感来源 / 背景素材</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">当前痛点</div>
+      <div class="info-content">
+        传统文化的数字呈现多停留在<strong>"贴图 + 文字"</strong>的低维形态。博物馆的网页厚重古板，短视频又过于娱乐化难以体会意境。<strong>缺少一种既现代又典雅、既轻量又可交互的呈现方式。</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 3 部分：6个意境场景 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">叁</span>
+      <h3 class="section-heading">六 大 意 境 场 景</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <p style="font-size: 14px; color: #a89673; line-height: 2; margin-bottom: 8px;">
+      围绕中国传统文化中的六种代表性"意境"，将原画元素以粒子形态重构：
+    </p>
+
+    <div class="scenes-grid">
+      <div class="scene-card">
+        <div class="scene-card-title">山 水</div>
+        <div class="scene-card-desc">6 层青绿山水、远帆、留白云气——致敬王希孟《千里江山图》</div>
+        <div class="scene-card-poem">咫尺千里，咫尺万里</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-card-title">诗 词</div>
+        <div class="scene-card-desc">明月、拱桥、渔火、远山——张继《枫桥夜泊》的千年回响</div>
+        <div class="scene-card-poem">月落乌啼霜满天</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-card-title">戏 曲</div>
+        <div class="scene-card-desc">5 层绽放的牡丹、牡丹亭飞檐、飘落花瓣——汤显祖的浪漫</div>
+        <div class="scene-card-poem">原来姹紫嫣红开遍</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-card-title">园 林</div>
+        <div class="scene-card-desc">临水攒尖亭、九曲回廊、假山、垂柳——苏州园林的"虽由人作"</div>
+        <div class="scene-card-poem">虽由人作，宛自天开</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-card-title">书 法</div>
+        <div class="scene-card-desc">通过 canvas 提取"兰亭集序"字形粒子，自动切换汉字</div>
+        <div class="scene-card-poem">仰观宇宙之大，俯察品类之盛</div>
+      </div>
+
+      <div class="scene-card">
+        <div class="scene-card-title">星 象</div>
+        <div class="scene-card-desc">东方苍龙、北方玄武、西方白虎、南方朱雀——二十八星宿</div>
+        <div class="scene-card-poem">星垂平野阔，月涌大江流</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 4 部分：核心交互功能 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">肆</span>
+      <h3 class="section-heading">核 心 交 互 体 验</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-num">01</div>
+        <div class="feature-content">
+          <div class="feature-title">原 画 渐 隐 · 粒 子 召 唤</div>
+          <div class="feature-desc">进入场景时展示对应原画（如《千里江山图》），3 秒后原画被粒子"溶解"，文化元素在指尖重组为新的视觉生命。</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">02</div>
+        <div class="feature-content">
+          <div class="feature-title">鼠 标 跟 随 · 粒 子 飞 舞</div>
+          <div class="feature-desc">8000 颗粒子实时感应鼠标轨迹，靠近时扩散、远离时聚拢，形成"被指点即活"的灵动感。</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">03</div>
+        <div class="feature-content">
+          <div class="feature-title">滚 轮 缩 放 · 拖 拽 漫 游</div>
+          <div class="feature-desc">可推近推远查看山水细节，可自由拖拽视角在亭台楼阁间漫游，仿佛真的"入境"。</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">04</div>
+        <div class="feature-content">
+          <div class="feature-title">诗 词 配 幕 · 场 景 共 鸣</div>
+          <div class="feature-desc">每切换场景，原画配以对应古诗词（竖排书法字体），让画面与文字共同构建东方意境。</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">05</div>
+        <div class="feature-content">
+          <div class="feature-title">场 景 间 散 开 · 动 态 切 换</div>
+          <div class="feature-desc">点击场景按钮时，旧的画面被粒子"吹散"再重新凝聚为新场景，过渡具有呼吸感。</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-num">06</div>
+        <div class="feature-content">
+          <div class="feature-title">氛 围 颗 粒 · 环 境 渲 染</div>
+          <div class="feature-desc">每个场景配以专属氛围粒子——山水有烟雾、诗词有萤火虫、戏曲有飘落花瓣、园林有飘叶、书法有墨点、星空有闪烁星点。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 5 部分：价值与意义 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">伍</span>
+      <h3 class="section-heading">价 值 与 意 义</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="value-grid">
+      <div class="value-card">
+        <div class="value-icon">🎨</div>
+        <div class="value-title">文 化 价 值</div>
+        <div class="value-desc">让 90 后、00 后在 30 秒内被传统文化击中，把"博物馆级"的体验搬进每一个屏幕</div>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <div class="value-title">效 率 价 值</div>
+        <div class="value-desc">单 HTML 文件，零依赖、零后端，3 秒加载即可使用，可嵌入任何场景</div>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon">🌏</div>
+        <div class="value-title">社 会 价 值</div>
+        <div class="value-desc">为景区/博物馆/学校提供低成本的数字文化展方案，让传统文化走进课堂与生活</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 6 部分：作品演示 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">陆</span>
+      <h3 class="section-heading">作 品 演 示</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <p style="font-size: 14px; color: #c4ad7a; line-height: 2; margin-bottom: 20px;">
+      👇 在下方预览框中体验完整作品（包含 6 个中国传统文化场景的粒子艺术展示）：
+    </p>
+
+    <div class="preview-frame">
+      <iframe src="https://www.trae.cn" sandbox="allow-scripts allow-same-origin" style="display:none;"></iframe>
+      <div id="inlineDemo" style="width:100%; height:540px; position:relative; background:#0a0705;"></div>
+    </div>
+  </div>
+
+  <!-- 第 7 部分：技术栈 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">柒</span>
+      <h3 class="section-heading">技 术 栈 与 实 现</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">核心框架</div>
+      <div class="info-content">
+        <div class="tech-stack">
+          <span class="tech-tag">HTML5 Canvas</span>
+          <span class="tech-tag">Canvas 2D</span>
+          <span class="tech-tag">原生 JavaScript (ES6+)</span>
+          <span class="tech-tag">CSS3 动画</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">实现亮点</div>
+      <div class="info-content">
+        <ul class="checklist">
+          <li><strong>粒子系统</strong>：8000+ 粒子实时渲染，含拖尾、外发光、大小脉动效果</li>
+          <li><strong>矢量场生成</strong>：将中国画元素（山水、亭台、花瓣、星座）转化为粒子目标位置</li>
+          <li><strong>字形提取</strong>：通过离屏 Canvas 提取"兰亭集序"汉字轮廓粒子</li>
+          <li><strong>物理模拟</strong>：粒子追踪目标、阻尼、摆动、鼠标排斥/吸引</li>
+          <li><strong>氛围渲染</strong>：萤火虫、墨点、飘落花瓣等动态元素</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">使用方式</div>
+      <div class="info-content">单文件 HTML，可直接打开预览，亦可嵌入任何网页 / 公众号 / 教学系统，零依赖即开即用</div>
+    </div>
+  </div>
+
+  <!-- 第 8 部分：报名信息 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">捌</span>
+      <h3 class="section-heading">报 名 信 息</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="register-info">
+      <div class="info-box">
+        <div class="info-box-label">所 选 赛 道</div>
+        <div class="info-box-value">学 习 工 作</div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-label">参 赛 编 号</div>
+        <div class="info-box-value">T A C - 9 2 X Y R G</div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-label">作 品 形 态</div>
+        <div class="info-box-value">H T M L 创 意 产 物</div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-label">是 否 附 加 赛 道</div>
+        <div class="info-box-value">社 会 公 益</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 9 部分：报名流程 -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">玖</span>
+      <h3 class="section-heading">我 是 怎 么 完 成 这 件 作 品 的</h3>
+      <span class="section-icon">✦</span>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">壹</div>
+        <div class="step-title">创 意 提 炼</div>
+        <div class="step-desc">和 TRAE 对话<br>选定文化主题</div>
+      </div>
+      <div class="step">
+        <div class="step-num">贰</div>
+        <div class="step-title">技 术 选 型</div>
+        <div class="step-desc">Canvas 2D<br>8000 粒子</div>
+      </div>
+      <div class="step">
+        <div class="step-num">叁</div>
+        <div class="step-title">代 码 实 现</div>
+        <div class="step-desc">粒子系统<br>6 大场景</div>
+      </div>
+      <div class="step">
+        <div class="step-num">肆</div>
+        <div class="step-title">调 优 上 线</div>
+        <div class="step-desc">性能优化<br>美学打磨</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-area">
+    <h3 class="cta-title">期 待 与 您 交 流</h3>
+    <p class="cta-subtitle">感谢您看完这份创意提案，欢迎在评论区留言指导</p>
+    <div class="cta-buttons">
+      <a class="cta-btn primary" href="https://forum.trae.cn" target="_blank">前 往 TRAE 社 区</a>
+      <a class="cta-btn secondary" href="https://www.trae.cn/ai-creativity" target="_blank">大 赛 官 网</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  —— 星河粒子 · 中国意境沉浸展 · 谨呈 ——
+</div>
+
+<script>
+// ==================== 内嵌粒子 Demo 渲染 ====================
+const demoContainer = document.getElementById('inlineDemo');
+const canvas = document.createElement('canvas');
+const bgCanvas = document.createElement('canvas');
+canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
+bgCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;';
+demoContainer.appendChild(bgCanvas);
+demoContainer.appendChild(canvas);
+
+const ctx = canvas.getContext('2d');
+const bgCtx = bgCanvas.getContext('2d');
+
+let W, H, particles = [], ambientParticles = [];
+let mouseX = 0, mouseY = 0, isMouseMoving = false, mouseTimeout;
+let currentSceneIdx = 0, time = 0, zoom = 0.7;
+let panX = 0, panY = 0, isDragging = false, lastMX, lastMY;
+
+const demoScenes = [
+  { name: '山水', color: { main: '#4a8f6b', accent: '#f4d77e' } },
+  { name: '诗词', color: { main: '#8b7355', accent: '#e8cf8f' } },
+  { name: '戏曲', color: { main: '#c96a7e', accent: '#f4d77e' } },
+  { name: '园林', color: { main: '#6b8e6b', accent: '#d4af6a' } },
+  { name: '书法', color: { main: '#d4af6a', accent: '#f4d77e' } },
+  { name: '星象', color: { main: '#5a7ac9', accent: '#e8d8a8' } }
+];
+
+class P {
+  constructor(x, y, tx, ty) {
+    this.x = x; this.y = y; this.tx = tx; this.ty = ty;
+    this.vx = (Math.random() - 0.5) * 1;
+    this.vy = (Math.random() - 0.5) * 1;
+    this.size = Math.random() * 1.5 + 0.5;
+    this.baseSize = this.size;
+    this.friction = 0.88 + Math.random() * 0.08;
+    this.alpha = 0; this.targetAlpha = 0.5 + Math.random() * 0.5;
+    this.wobble = Math.random() * Math.PI * 2;
+    this.wobbleSpeed = 0.008 + Math.random() * 0.015;
+  }
+  update() {
+    const dx = this.tx - this.x, dy = this.ty - this.y;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d > 0.5) {
+      this.vx += (dx / d) * d * 0.015;
+      this.vy += (dy / d) * d * 0.015;
+    }
+    if (isMouseMoving) {
+      const mdx = this.x - mouseX, mdy = this.y - mouseY;
+      const md = Math.sqrt(mdx * mdx + mdy * mdy);
+      if (md < 150 && md > 0) {
+        const f = (150 - md) * 0.005;
+        this.vx += (mdx / md) * f;
+        this.vy += (mdy / md) * f;
+      }
+    }
+    this.wobble += this.wobbleSpeed;
+    this.vx += Math.sin(this.wobble) * 0.02;
+    this.vy += Math.cos(this.wobble * 0.7) * 0.02;
+    this.vx *= this.friction; this.vy *= this.friction;
+    this.x += this.vx; this.y += this.vy;
+    if (d < 30) this.alpha += (this.targetAlpha - this.alpha) * 0.06;
+    else if (d < 150) this.alpha += (this.targetAlpha * 0.6 - this.alpha) * 0.04;
+    else this.alpha += (0.08 - this.alpha) * 0.03;
+    this.size = this.baseSize * (0.7 + Math.sin(time * 0.015 + this.wobble) * 0.4);
+  }
+  draw(c) {
+    ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha));
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 5);
+    grad.addColorStop(0, c.accent);
+    grad.addColorStop(0.2, c.main);
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha)) * 1.3;
+    ctx.fillStyle = c.accent;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 0.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function resize() {
+  W = canvas.width = bgCanvas.width = demoContainer.clientWidth;
+  H = canvas.height = bgCanvas.height = demoContainer.clientHeight;
+  initParticles();
+  setTargets();
+}
+
+function initParticles() {
+  particles = [];
+  const n = Math.min(3000, Math.floor(W * H / 600));
+  for (let i = 0; i < n; i++) {
+    particles.push(new P(Math.random() * W, Math.random() * H, Math.random() * W, Math.random() * H));
+  }
+}
+
+function setTargets() {
+  const cx = W / 2 + panX, cy = H / 2 + panY;
+  const s = Math.min(W, H) * 0.4 * zoom;
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const t = (i / particles.length) * Math.PI * 2;
+    const r = s * (0.3 + Math.random() * 0.7);
+    p.tx = cx + Math.cos(t) * r * (0.7 + Math.random() * 0.3);
+    p.ty = cy + Math.sin(t) * r * (0.5 + Math.random() * 0.5);
+  }
+}
+
+function animate() {
+  time++;
+  ctx.clearRect(0, 0, W, H);
+  bgCtx.clearRect(0, 0, W, H);
+
+  const c = demoScenes[currentSceneIdx].color;
+  const grad = bgCtx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.6);
+  grad.addColorStop(0, c.main + '40');
+  grad.addColorStop(1, '#000000');
+  bgCtx.fillStyle = grad;
+  bgCtx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw(c);
+  }
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+
+demoContainer.addEventListener('mousemove', (e) => {
+  const rect = demoContainer.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
+  isMouseMoving = true;
+  clearTimeout(mouseTimeout);
+  mouseTimeout = setTimeout(() => { isMouseMoving = false; }, 100);
+});
+
+demoContainer.addEventListener('click', () => {
+  currentSceneIdx = (currentSceneIdx + 1) % demoScenes.length;
+  setTargets();
+});
+
+window.addEventListener('resize', resize);
+resize();
+animate();
+
+// 监听 banner 区域，让其在滚动后停止动画以节省性能
+const bannerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) {
+      // 离开视口
+    }
+  });
+});
+</script>
+</body>
+</html>

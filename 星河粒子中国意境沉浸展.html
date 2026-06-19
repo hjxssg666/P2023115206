@@ -414,8 +414,8 @@
 <!-- 主画布 - 粒子系统 -->
 <canvas id="canvas"></canvas>
 
-<!-- 原画展示层 -->
-<img class="original-painting" id="painting" alt="原画">
+<!-- 原画展示层 (保留元素，用于未来扩展) -->
+<img class="original-painting" id="painting" alt="" style="display:none;">
 
 <!-- 氛围效果层 -->
 <div class="ambience-layer" id="ambienceLayer"></div>
@@ -446,20 +446,20 @@
 </div>
 
 <!-- 进入场景按钮 -->
-<button class="enter-btn" id="enterBtn">⟡ 进 入 场 景 ⟡</button>
+<button class="enter-btn" id="enterBtn">⟡ 进 入 学 习 ⟡</button>
 
 <!-- 场景选择 -->
 <div class="overlay scene-panel">
-  <button class="scene-btn active" data-scene="mountains">古 画</button>
-  <button class="scene-btn" data-scene="poetry">诗 词</button>
-  <button class="scene-btn" data-scene="opera">戏 曲</button>
-  <button class="scene-btn" data-scene="garden">园 林</button>
-  <button class="scene-btn" data-scene="calligraphy">书 法</button>
-  <button class="scene-btn" data-scene="stars">星 空</button>
+  <button class="scene-btn active" data-scene="mountains">研 读</button>
+  <button class="scene-btn" data-scene="poetry">笔 耕</button>
+  <button class="scene-btn" data-scene="opera">思 索</button>
+  <button class="scene-btn" data-scene="garden">运 筹</button>
+  <button class="scene-btn" data-scene="calligraphy">深 耕</button>
+  <button class="scene-btn" data-scene="stars">求 索</button>
 </div>
 
 <!-- 交互提示 -->
-<div class="overlay hint">⟡ 滚轮缩放 · 双击进入 · 拖拽漫游 · 移动鼠标让粒子为你舞蹈 ⟡</div>
+<div class="overlay hint">⟡ 滚轮缩放 · 双击沉浸 · 拖拽漫游 · 在知识的星空中探索无限可能 ⟡</div>
 
 <!-- 辅助画布 -->
 <canvas id="shapeCanvas" style="display:none;"></canvas>
@@ -495,68 +495,68 @@ let lastMouseX, lastMouseY;
 // ==================== 场景配置 ====================
 const scenes = {
   mountains: {
-    label: '· 古 画 ·',
-    title: '千里江山图',
-    desc: '王希孟以千里江山写尽少年意气，青绿山水间，是整个大宋的风华。',
-    poem: '咫尺千里\n咫尺万里',
-    author: '— 王希孟',
+    label: '· 研 读 ·',
+    title: '经典研读',
+    desc: '手不释卷，博古通今。每一页文字都是先贤思想的结晶，每一次阅读都是与智者的对话。',
+    poem: '学而不厌\n诲人不倦',
+    author: '— 论 语',
     color: { main: '#4a8f6b', accent: '#f4d77e', glow: '#2d5a4a', secondary: '#1a3a2a' },
-    type: 'mountains',
-    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg/800px-Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg',
+    type: 'bookshelf',
+    painting: null,
     ambience: 'mist'
   },
   poetry: {
-    label: '· 诗 词 ·',
-    title: '枫桥夜泊',
-    desc: '姑苏城外，寒山寺中，钟声穿过千年的月光，落在旅人的心头。',
-    poem: '月落乌啼\n霜满天',
-    author: '— 张 继',
+    label: '· 笔 耕 ·',
+    title: '写作创作',
+    desc: '笔尖划过纸面，思绪汇成文字。每一个字符都是思维的轨迹，每一篇文章都是灵魂的抒发。',
+    poem: '读书破万卷\n下笔如有神',
+    author: '— 杜 甫',
     color: { main: '#8b7355', accent: '#e8cf8f', glow: '#4a3f2e', secondary: '#2a2520' },
-    type: 'moonRiver',
+    type: 'writing',
     painting: null,
     ambience: 'fireflies'
   },
   opera: {
-    label: '· 戏 曲 ·',
-    title: '牡丹亭 · 惊梦',
-    desc: '良辰美景奈何天，赏心乐事谁家院。杜丽娘的一梦，是中国最动人的浪漫。',
-    poem: '原来姹紫\n嫣红开遍',
-    author: '— 汤显祖',
+    label: '· 思 索 ·',
+    title: '深度思考',
+    desc: '静心凝神，思绪万千。让灵感在脑海中碰撞，让创意在沉思中萌发，这是思考者最美的姿态。',
+    poem: '学而不思则罔\n思而不学则殆',
+    author: '— 孔 子',
     color: { main: '#c96a7e', accent: '#f4d77e', glow: '#6b2e3d', secondary: '#3a1a25' },
-    type: 'flower',
+    type: 'mindmap',
     painting: null,
     ambience: 'petals'
   },
   garden: {
-    label: '· 园 林 ·',
-    title: '苏州园林',
-    desc: '亭台楼阁间，一窗一画；曲水流觞处，一步一景。是中国人造在人间的天堂。',
-    poem: '虽由人作\n宛自天开',
-    author: '— 计 成',
+    label: '· 运 筹 ·',
+    title: '规划运筹',
+    desc: '运筹帷幄之中，决胜千里之外。清晰的规划是成功的基石，有序的工作是效率的保证。',
+    poem: '凡事预则立\n不预则废',
+    author: '— 礼 记',
     color: { main: '#6b8e6b', accent: '#d4af6a', glow: '#3a5a3a', secondary: '#1a2a1a' },
-    type: 'pavilion',
+    type: 'chart',
     painting: null,
     ambience: 'leaves'
   },
   calligraphy: {
-    label: '· 书 法 ·',
-    title: '兰亭集序',
-    desc: '王羲之醉笔之下，天下第一行书就此诞生。一笔一画，是魏晋风度，是中国人的精神。',
-    poem: '仰观宇宙\n之大',
-    author: '— 王羲之',
+    label: '· 深 耕 ·',
+    title: '专注深耕',
+    desc: '十年磨一剑，未曾试锋芒。在自己的领域里深耕细作，日复一日的积累终将化为耀眼的成就。',
+    poem: '锲而不舍\n金石可镂',
+    author: '— 荀 子',
     color: { main: '#d4af6a', accent: '#f4d77e', glow: '#4a3f2e', secondary: '#2a2a1a' },
-    type: 'character',
+    type: 'hourglass',
     painting: null,
     ambience: 'ink'
   },
   stars: {
-    label: '· 星 空 ·',
-    title: '二十八星宿',
-    desc: '古人仰观天象，把满天繁星分成二十八宿。紫微垣中，藏着整个宇宙的秩序。',
-    poem: '星垂平野\n阔',
-    author: '— 杜 甫',
+    label: '· 求 索 ·',
+    title: '探索研究',
+    desc: '路漫漫其修远兮，吾将上下而求索。在知识的星空中探索未知，在研究的道路上不断前行。',
+    poem: '路漫漫其修远兮\n吾将上下而求索',
+    author: '— 屈 原',
     color: { main: '#5a7ac9', accent: '#e8d8a8', glow: '#2e3f6b', secondary: '#1a1f3a' },
-    type: 'stars',
+    type: 'explore',
     painting: null,
     ambience: 'stars'
   }
@@ -908,252 +908,483 @@ function generateShapePoints(type, count) {
   const cy = H / 2 + panY;
   const scale = Math.min(W, H) * 0.4 * zoom;
 
-  if (type === 'mountains') {
-    // 层叠山水
-    for (let layer = 0; layer < 5; layer++) {
-      const layerRatio = layer / 5;
-      const layerY = H * 0.3 + layerRatio * H * 0.5;
-      const layerScale = scale * (1 - layerRatio * 0.3);
-      const opacity = 1 - layerRatio * 0.6;
+  if (type === 'bookshelf') {
+    // 书架 - 研读场景
+    const shelfCount = 4;
+    const shelfWidth = scale * 2.5;
+    const shelfHeight = scale * 0.15;
+    const bookColors = ['#8b4513', '#654321', '#800020', '#2f4f4f', '#483d8b', '#800000', '#556b2f', '#6b4423'];
 
-      for (let i = 0; i < count * 0.25; i++) {
-        const t = i / (count * 0.25);
-        const x = t * W * 0.95 + W * 0.025;
+    for (let shelf = 0; shelf < shelfCount; shelf++) {
+      const shelfY = cy - scale * 0.7 + shelf * (scale * 0.45 + shelfHeight);
 
-        // 多层山峰
-        const peaks = [
-          { x: 0.1, h: 0.4 },
-          { x: 0.25, h: 0.7 },
-          { x: 0.4, h: 0.5 },
-          { x: 0.55, h: 0.85 },
-          { x: 0.7, h: 0.6 },
-          { x: 0.85, h: 0.75 },
-          { x: 0.95, h: 0.45 }
-        ];
+      // 书架板
+      for (let i = 0; i < count * 0.08; i++) {
+        const x = cx - shelfWidth / 2 + Math.random() * shelfWidth;
+        const y = shelfY + scale * 0.25 + (Math.random() - 0.5) * 5;
+        points.push({ x: x + panX, y: y + panY });
+      }
 
-        let y = layerY;
-        for (const peak of peaks) {
-          const dist = Math.abs(t - peak.x);
-          const peakHeight = peak.h * layerScale * (0.8 + layerRatio * 0.4);
-          y -= Math.exp(-dist * dist * 20) * peakHeight;
+      // 书本
+      let bookX = cx - shelfWidth / 2 + scale * 0.1;
+      while (bookX < cx + shelfWidth / 2 - scale * 0.1) {
+        const bookWidth = scale * 0.06 + Math.random() * scale * 0.04;
+        const bookHeight = scale * 0.15 + Math.random() * scale * 0.1;
+        const bookTopY = shelfY + scale * 0.25 - bookHeight;
+
+        // 书脊
+        for (let i = 0; i < count * 0.02; i++) {
+          const x = bookX + (Math.random() - 0.5) * bookWidth * 0.8;
+          const y = bookTopY + Math.random() * bookHeight;
+          points.push({ x: x + panX, y: y + panY });
         }
 
-        // 添加细节
-        y += Math.sin(t * Math.PI * 8 + layer * 0.5) * 5;
-        y += (Math.random() - 0.5) * 8;
+        // 书页细节
+        if (Math.random() > 0.5) {
+          for (let i = 0; i < count * 0.01; i++) {
+            const x = bookX + bookWidth * 0.3 + (Math.random() - 0.5) * 3;
+            const y = bookTopY + Math.random() * bookHeight * 0.8;
+            points.push({ x: x + panX, y: y + panY });
+          }
+        }
 
-        points.push({ x: x + panX, y: y + panY, layer: layerRatio });
+        bookX += bookWidth + 2;
       }
     }
 
-    // 云雾
+    // 散落的文字粒子
     for (let i = 0; i < count * 0.1; i++) {
-      const y = H * 0.4 + Math.random() * H * 0.3;
       points.push({
         x: Math.random() * W + panX,
-        y: y + panY + Math.sin(Math.random() * Math.PI) * 30
+        y: H * 0.15 + Math.random() * H * 0.7 + panY
       });
     }
 
-  } else if (type === 'moonRiver') {
-    // 明月
-    const moonX = cx - scale * 0.3;
-    const moonY = cy - scale * 0.3;
-    const moonR = scale * 0.35;
-    for (let i = 0; i < count * 0.4; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = moonR * (0.7 + Math.random() * 0.3);
-      points.push({
-        x: moonX + Math.cos(angle) * r + (Math.random() - 0.5) * 20,
-        y: moonY + Math.sin(angle) * r + (Math.random() - 0.5) * 20
-      });
+  } else if (type === 'writing') {
+    // 写作创作 - 文字流
+    // 页面框架
+    const pageWidth = scale * 1.8;
+    const pageHeight = scale * 1.4;
+    const pageLeft = cx - pageWidth / 2;
+    const pageTop = cy - pageHeight / 2;
+
+    // 页面边缘
+    for (let i = 0; i < count * 0.1; i++) {
+      const side = Math.floor(Math.random() * 4);
+      let x, y;
+      if (side === 0) { x = pageLeft + (Math.random() - 0.5) * 5; y = pageTop + Math.random() * pageHeight; }
+      else if (side === 1) { x = pageLeft + pageWidth + (Math.random() - 0.5) * 5; y = pageTop + Math.random() * pageHeight; }
+      else if (side === 2) { x = pageLeft + Math.random() * pageWidth; y = pageTop + (Math.random() - 0.5) * 5; }
+      else { x = pageLeft + Math.random() * pageWidth; y = pageTop + pageHeight + (Math.random() - 0.5) * 5; }
+      points.push({ x: x + panX, y: y + panY });
     }
 
-    // 河流
-    for (let i = 0; i < count * 0.5; i++) {
-      const t = i / (count * 0.5);
-      const x = t * W * 0.9 + W * 0.05;
-      const baseY = cy + scale * 0.4;
-      const waveY = Math.sin(t * Math.PI * 6 + time * 0.02) * scale * 0.15;
-      const waveX = Math.sin(t * Math.PI * 3) * scale * 0.2;
-      for (let j = 0; j < 5; j++) {
+    // 文字行
+    const lineCount = 10;
+    for (let line = 0; line < lineCount; line++) {
+      const lineY = pageTop + scale * 0.15 + line * scale * 0.11;
+      const lineLength = pageWidth * (0.6 + Math.random() * 0.35);
+      const lineLeft = pageLeft + scale * 0.1;
+
+      for (let i = 0; i < count * 0.05; i++) {
+        const t = Math.random();
+        const x = lineLeft + t * lineLength;
+        const y = lineY + Math.sin(t * Math.PI * 8 + line) * 2 + (Math.random() - 0.5) * 4;
+        points.push({ x: x + panX, y: y + panY });
+      }
+
+      // 标点符号点
+      for (let i = 0; i < count * 0.01; i++) {
         points.push({
-          x: x + waveX + (Math.random() - 0.5) * 25,
-          y: baseY + waveY + (Math.random() - 0.5) * 25 + j * 15
+          x: lineLeft + lineLength + (Math.random() - 0.5) * 10 + panX,
+          y: lineY + (Math.random() - 0.5) * 5 + panY
         });
       }
     }
 
-    // 渔火
-    for (let i = 0; i < count * 0.1; i++) {
-      const t = Math.random();
+    // 笔尖/光标
+    const cursorX = pageLeft + pageWidth * 0.3 + Math.sin(time * 0.02) * scale * 0.1;
+    const cursorY = pageTop + pageHeight * 0.7;
+    for (let i = 0; i < count * 0.05; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * scale * 0.08;
       points.push({
-        x: W * 0.2 + Math.random() * W * 0.6 + panX,
-        y: H * 0.55 + Math.random() * H * 0.2 + panY
+        x: cursorX + Math.cos(angle) * r + panX,
+        y: cursorY + Math.sin(angle) * r + panY
       });
     }
 
-  } else if (type === 'flower') {
-    // 牡丹花
-    const petalCount = 12;
-    for (let f = 0; f < 3; f++) {
-      const flowerCX = cx + (f - 1) * scale * 0.6;
-      const flowerCY = cy + (f % 2) * scale * 0.3;
-      const flowerScale = scale * (0.5 + f * 0.2);
+    // 散落的灵感粒子
+    for (let i = 0; i < count * 0.15; i++) {
+      points.push({
+        x: Math.random() * W + panX,
+        y: Math.random() * H + panY
+      });
+    }
 
-      for (let p = 0; p < petalCount; p++) {
-        const baseAngle = (p / petalCount) * Math.PI * 2;
-        for (let i = 0; i < count * 0.08; i++) {
+  } else if (type === 'mindmap') {
+    // 深度思考 - 思维导图
+    // 中心节点
+    const centerR = scale * 0.2;
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = centerR * (0.7 + Math.random() * 0.3);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 分支节点
+    const branchCount = 8;
+    for (let b = 0; b < branchCount; b++) {
+      const baseAngle = (b / branchCount) * Math.PI * 2 + time * 0.0005;
+      const branchDist = scale * 0.5;
+      const nodeX = cx + Math.cos(baseAngle) * branchDist;
+      const nodeY = cy + Math.sin(baseAngle) * branchDist;
+
+      // 连线
+      for (let i = 0; i < count * 0.03; i++) {
+        const t = Math.random();
+        const wave = Math.sin(t * Math.PI) * scale * 0.1;
+        const nx = cx + (nodeX - cx) * t + Math.cos(baseAngle + Math.PI / 2) * wave + (Math.random() - 0.5) * 5;
+        const ny = cy + (nodeY - cy) * t + Math.sin(baseAngle + Math.PI / 2) * wave + (Math.random() - 0.5) * 5;
+        points.push({ x: nx, y: ny });
+      }
+
+      // 子节点
+      const nodeSize = scale * 0.1 * (0.5 + Math.random() * 0.5);
+      for (let i = 0; i < count * 0.04; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = nodeSize * (0.7 + Math.random() * 0.3);
+        points.push({
+          x: nodeX + Math.cos(angle) * r + panX,
+          y: nodeY + Math.sin(angle) * r + panY
+        });
+      }
+
+      // 二级分支
+      if (b % 2 === 0) {
+        const subAngle = baseAngle + (Math.random() - 0.5) * 0.5;
+        const subDist = scale * 0.85;
+        const subX = cx + Math.cos(subAngle) * subDist;
+        const subY = cy + Math.sin(subAngle) * subDist;
+
+        // 二级连线
+        for (let i = 0; i < count * 0.02; i++) {
           const t = Math.random();
-          const angle = baseAngle + (Math.random() - 0.5) * 0.8;
-          const dist = t * flowerScale * 0.8;
-          const widthOffset = (Math.random() - 0.5) * flowerScale * 0.15 * (1 - t);
           points.push({
-            x: flowerCX + Math.cos(angle) * dist + Math.cos(angle + Math.PI / 2) * widthOffset + panX,
-            y: flowerCY + Math.sin(angle) * dist + Math.sin(angle + Math.PI / 2) * widthOffset + panY
+            x: nodeX + (subX - nodeX) * t + (Math.random() - 0.5) * 5 + panX,
+            y: nodeY + (subY - nodeY) * t + (Math.random() - 0.5) * 5 + panY
+          });
+        }
+
+        // 二级节点
+        for (let i = 0; i < count * 0.03; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const r = scale * 0.07 * (0.7 + Math.random() * 0.3);
+          points.push({
+            x: subX + Math.cos(angle) * r + panX,
+            y: subY + Math.sin(angle) * r + panY
           });
         }
       }
-
-      // 花蕊
-      for (let i = 0; i < count * 0.02; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = Math.random() * flowerScale * 0.1;
-        points.push({
-          x: flowerCX + Math.cos(angle) * r + panX,
-          y: flowerCY + Math.sin(angle) * r + panY
-        });
-      }
     }
 
-  } else if (type === 'pavilion') {
-    // 亭子
-    // 屋顶
-    for (let i = 0; i < count * 0.2; i++) {
-      const t = Math.random();
-      const roofWidth = scale * 1.8;
-      const roofHeight = scale * 0.4;
-      const x = cx - roofWidth / 2 + t * roofWidth;
-      const curveY = Math.sin(t * Math.PI) * roofHeight;
-      const y = cy - scale * 0.3 - curveY;
+    // 思考光环 - 环绕的粒子
+    for (let i = 0; i < count * 0.1; i++) {
+      const orbitAngle = Math.random() * Math.PI * 2 + time * 0.002;
+      const orbitR = scale * (0.3 + Math.random() * 0.7);
       points.push({
-        x: x + (Math.random() - 0.5) * 10 + panX,
-        y: y + (Math.random() - 0.5) * 8 + panY
+        x: cx + Math.cos(orbitAngle) * orbitR + panX,
+        y: cy + Math.sin(orbitAngle) * orbitR + panY
+      });
+    }
+
+  } else if (type === 'chart') {
+    // 规划运筹 - 图表
+    // 柱状图
+    const barCount = 7;
+    const barWidth = scale * 0.15;
+    const barGap = scale * 0.1;
+    const chartWidth = barCount * barWidth + (barCount - 1) * barGap;
+    const chartLeft = cx - chartWidth / 2;
+    const chartBottom = cy + scale * 0.4;
+    const chartHeight = scale * 1.1;
+
+    // 坐标轴
+    for (let i = 0; i < count * 0.08; i++) {
+      // X轴
+      points.push({
+        x: chartLeft + Math.random() * chartWidth + panX,
+        y: chartBottom + (Math.random() - 0.5) * 4 + panY
+      });
+      // Y轴
+      points.push({
+        x: chartLeft + (Math.random() - 0.5) * 4 + panX,
+        y: chartBottom - Math.random() * chartHeight + panY
       });
     }
 
     // 柱子
-    const pillarPositions = [-0.6, -0.2, 0.2, 0.6];
-    for (const px of pillarPositions) {
+    const barHeights = [0.45, 0.7, 0.55, 0.85, 0.65, 0.9, 0.75];
+    for (let b = 0; b < barCount; b++) {
+      const barLeft = chartLeft + b * (barWidth + barGap);
+      const barHeight = chartHeight * barHeights[b];
+      const barTop = chartBottom - barHeight;
+
       for (let i = 0; i < count * 0.08; i++) {
-        const x = cx + px * scale + (Math.random() - 0.5) * scale * 0.08;
-        const y = cy - scale * 0.1 + Math.random() * scale * 0.6;
-        points.push({ x, y });
-      }
-    }
-
-    // 台阶
-    for (let i = 0; i < count * 0.1; i++) {
-      const x = cx + (Math.random() - 0.5) * scale * 1.5;
-      const y = cy + scale * 0.5 + Math.random() * scale * 0.2;
-      points.push({ x, y });
-    }
-
-    // 假山
-    for (let i = 0; i < count * 0.15; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = scale * 0.25 + Math.random() * scale * 0.1;
-      const x = cx - scale * 0.9 + Math.cos(angle) * r;
-      const y = cy + scale * 0.2 + Math.sin(angle) * r * 0.5;
-      points.push({ x, y });
-    }
-
-    // 树木
-    const treePositions = [{ x: -0.9, y: 0.3 }, { x: 1.0, y: 0.2 }];
-    for (const tree of treePositions) {
-      for (let i = 0; i < count * 0.08; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = scale * 0.2 * Math.random();
-        const x = cx + tree.x * scale + Math.cos(angle) * r;
-        const y = cy + tree.y * scale + Math.sin(angle) * r * 0.7;
-        points.push({ x, y });
-      }
-    }
-
-  } else if (type === 'character') {
-    shapeCanvas.width = W;
-    shapeCanvas.height = H;
-    shapeCtx.clearRect(0, 0, W, H);
-    shapeCtx.fillStyle = '#000';
-    shapeCtx.fillRect(0, 0, W, H);
-    shapeCtx.fillStyle = '#fff';
-    shapeCtx.font = `bold ${Math.min(W, H) * 0.6}px 'STKaiti', 'KaiTi', serif`;
-    shapeCtx.textAlign = 'center';
-    shapeCtx.textBaseline = 'middle';
-
-    const chars = ['梦', '静', '和', '禅', '道', '龙', '鹤', '云'];
-    const char = chars[Math.floor(time * 0.0005) % chars.length];
-    shapeCtx.fillText(char, cx + panX, cy + panY);
-
-    const imageData = shapeCtx.getImageData(0, 0, W, H).data;
-    const samplePoints = [];
-    const step = 4;
-    for (let y = 0; y < H; y += step) {
-      for (let x = 0; x < W; x += step) {
-        const idx = (y * W + x) * 4;
-        if (imageData[idx] > 128) {
-          samplePoints.push({ x, y });
-        }
-      }
-    }
-
-    for (let i = 0; i < count; i++) {
-      if (samplePoints.length > 0) {
-        const pt = samplePoints[Math.floor(Math.random() * samplePoints.length)];
         points.push({
-          x: pt.x + (Math.random() - 0.5) * 3,
-          y: pt.y + (Math.random() - 0.5) * 3
+          x: barLeft + Math.random() * barWidth + panX,
+          y: barTop + Math.random() * barHeight + panY
+        });
+      }
+
+      // 柱子顶部标记
+      for (let i = 0; i < count * 0.01; i++) {
+        points.push({
+          x: barLeft + barWidth / 2 + (Math.random() - 0.5) * 15 + panX,
+          y: barTop - scale * 0.08 + (Math.random() - 0.5) * 5 + panY
         });
       }
     }
 
-  } else if (type === 'stars') {
-    // 背景星空
-    for (let i = 0; i < count * 0.5; i++) {
+    // 折线图 - 叠加在柱图上方
+    for (let i = 0; i < count * 0.1; i++) {
+      const t = Math.random();
+      const x = chartLeft + t * chartWidth;
+      const trendY = chartBottom - chartHeight * (0.55 + Math.sin(t * Math.PI * 3 + time * 0.005) * 0.25);
       points.push({
-        x: Math.random() * W + panX,
-        y: Math.random() * H * 0.8 + panY
+        x: x + panX,
+        y: trendY + (Math.random() - 0.5) * 10 + panY
       });
     }
 
-    // 星座连线
-    const constellations = [
-      { name: '东方苍龙', stars: [[0.15, 0.2], [0.25, 0.25], [0.35, 0.35], [0.45, 0.4], [0.55, 0.35]] },
-      { name: '北方玄武', stars: [[0.4, 0.5], [0.5, 0.55], [0.6, 0.5], [0.65, 0.6]] },
-      { name: '西方白虎', stars: [[0.6, 0.25], [0.7, 0.3], [0.8, 0.35], [0.85, 0.45]] },
-      { name: '南方朱雀', stars: [[0.2, 0.5], [0.3, 0.55], [0.4, 0.5], [0.35, 0.65]] }
-    ];
-
-    for (const cons of constellations) {
-      for (let j = 0; j < cons.stars.length; j++) {
-        const star = cons.stars[j];
-        for (let k = 0; k < count * 0.025; k++) {
-          points.push({
-            x: star[0] * W + (Math.random() - 0.5) * 25 + panX,
-            y: star[1] * H + (Math.random() - 0.5) * 25 + panY
-          });
-        }
+    // 数据点
+    for (let b = 0; b < barCount; b++) {
+      const barCenter = chartLeft + b * (barWidth + barGap) + barWidth / 2;
+      const dataY = chartBottom - chartHeight * (barHeights[b] + 0.1);
+      for (let i = 0; i < count * 0.015; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.random() * scale * 0.04;
+        points.push({
+          x: barCenter + Math.cos(angle) * r + panX,
+          y: dataY + Math.sin(angle) * r + panY
+        });
       }
     }
 
-    // 银河
+    // 装饰性百分比数字
+    for (let i = 0; i < count * 0.05; i++) {
+      points.push({
+        x: Math.random() * W * 0.6 + W * 0.2 + panX,
+        y: H * 0.2 + Math.random() * H * 0.2 + panY
+      });
+    }
+
+  } else if (type === 'hourglass') {
+    // 深耕 - 沙漏与时间
+    const hourglassW = scale * 0.5;
+    const hourglassH = scale * 1.2;
+
+    // 沙漏外框 - 梯形
+    for (let i = 0; i < count * 0.1; i++) {
+      const side = Math.floor(Math.random() * 4);
+      let x, y;
+      if (side === 0) {
+        // 左边框 - 上半
+        const t = Math.random();
+        x = cx - hourglassW * (0.3 + t * 0.7);
+        y = cy - hourglassH + t * hourglassH + (Math.random() - 0.5) * 4;
+      } else if (side === 1) {
+        // 左边框 - 下半
+        const t = Math.random();
+        x = cx - hourglassW * (1 - t * 0.7);
+        y = cy + t * hourglassH + (Math.random() - 0.5) * 4;
+      } else if (side === 2) {
+        // 右边框 - 上半
+        const t = Math.random();
+        x = cx + hourglassW * (0.3 + t * 0.7);
+        y = cy - hourglassH + t * hourglassH + (Math.random() - 0.5) * 4;
+      } else {
+        // 右边框 - 下半
+        const t = Math.random();
+        x = cx + hourglassW * (1 - t * 0.7);
+        y = cy + t * hourglassH + (Math.random() - 0.5) * 4;
+      }
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 上下顶边
+    for (let i = 0; i < count * 0.05; i++) {
+      points.push({
+        x: cx + (Math.random() - 0.5) * hourglassW * 2.5 + panX,
+        y: cy - hourglassH * 1.05 + (Math.random() - 0.5) * 4 + panY
+      });
+      points.push({
+        x: cx + (Math.random() - 0.5) * hourglassW * 2.5 + panX,
+        y: cy + hourglassH * 1.05 + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 上半部分沙 - 随时间减少
+    const sandProgress = (Math.sin(time * 0.003) * 0.5 + 0.5) * 0.8 + 0.1;
+    const sandTop = cy - hourglassH * 0.9;
+    const sandBottom = cy - hourglassH * sandProgress * 0.9;
+
     for (let i = 0; i < count * 0.2; i++) {
       const t = Math.random();
-      const x = W * 0.2 + t * W * 0.6;
-      const y = H * 0.3 + Math.sin(t * Math.PI) * H * 0.2;
+      const y = sandTop + t * (sandBottom - sandTop);
+      const normalizedY = (y - sandTop) / (sandBottom - sandTop);
+      const currentWidth = hourglassW * (0.9 - normalizedY * 0.6);
       points.push({
-        x: x + (Math.random() - 0.5) * 30 + panX,
-        y: y + (Math.random() - 0.5) * 30 + panY
+        x: cx + (Math.random() - 0.5) * currentWidth * 1.8 + panX,
+        y: y + (Math.random() - 0.5) * 3 + panY
+      });
+    }
+
+    // 下半部分沙 - 随时间增加
+    const lowerSandTop = cy + hourglassH * (1 - sandProgress) * 0.9;
+    const lowerSandBottom = cy + hourglassH * 0.95;
+
+    for (let i = 0; i < count * 0.2; i++) {
+      const t = Math.random();
+      const y = lowerSandTop + t * (lowerSandBottom - lowerSandTop);
+      const normalizedY = 1 - (y - lowerSandTop) / (lowerSandBottom - lowerSandTop);
+      const currentWidth = hourglassW * (0.6 + normalizedY * 1.4);
+      points.push({
+        x: cx + (Math.random() - 0.5) * currentWidth * 1.5 + panX,
+        y: y + (Math.random() - 0.5) * 3 + panY
+      });
+    }
+
+    // 中间沙漏口 - 下落的沙粒
+    for (let i = 0; i < count * 0.08; i++) {
+      const x = cx + (Math.random() - 0.5) * scale * 0.05;
+      const y = cy + (Math.random() - 0.5) * scale * 0.1;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 下落的沙流
+    for (let i = 0; i < count * 0.05; i++) {
+      const x = cx + (Math.random() - 0.5) * 8;
+      const y = cy + (Math.random() - 0.5) * scale * 0.3;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 周围的时间标记 - 圆形轨道粒子
+    const orbitCount = 3;
+    for (let orbit = 0; orbit < orbitCount; orbit++) {
+      const orbitR = scale * (0.8 + orbit * 0.25);
+      for (let i = 0; i < count * 0.03; i++) {
+        const angle = Math.random() * Math.PI * 2 + time * 0.001 * (orbit + 1);
+        points.push({
+          x: cx + Math.cos(angle) * orbitR + panX,
+          y: cy + Math.sin(angle) * orbitR + panY
+        });
+      }
+    }
+
+    // 四周的数字/符号粒子表示进度
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * (1.2 + Math.random() * 0.3);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + Math.sin(angle) * r + panY
+      });
+    }
+
+  } else if (type === 'explore') {
+    // 探索研究 - 知识星空与罗盘
+    // 背景知识粒子 - 大量小星星
+    for (let i = 0; i < count * 0.4; i++) {
+      points.push({
+        x: Math.random() * W + panX,
+        y: Math.random() * H * 0.9 + panY
+      });
+    }
+
+    // 中心罗盘
+    const compassR = scale * 0.3;
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = compassR * (0.9 + Math.random() * 0.1);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 罗盘指针
+    for (let i = 0; i < count * 0.05; i++) {
+      const pointerAngle = time * 0.002;
+      const t = Math.random();
+      const r = compassR * t;
+      if (Math.random() > 0.3) {
+        points.push({
+          x: cx + Math.cos(pointerAngle) * r + panX,
+          y: cy + Math.sin(pointerAngle) * r + panY
+        });
+      } else {
+        points.push({
+          x: cx - Math.cos(pointerAngle) * r + panX,
+          y: cy - Math.sin(pointerAngle) * r + panY
+        });
+      }
+    }
+
+    // 罗盘刻度
+    for (let a = 0; a < 12; a++) {
+      const angle = (a / 12) * Math.PI * 2;
+      const r1 = compassR * 1.1;
+      const r2 = compassR * 1.25;
+      for (let i = 0; i < count * 0.008; i++) {
+        const t = Math.random();
+        points.push({
+          x: cx + Math.cos(angle) * (r1 + (r2 - r1) * t) + panX,
+          y: cy + Math.sin(angle) * (r1 + (r2 - r1) * t) + panY
+        });
+      }
+    }
+
+    // 知识节点 - 围绕罗盘分布的主题
+    const topicCount = 6;
+    for (let t = 0; t < topicCount; t++) {
+      const topicAngle = (t / topicCount) * Math.PI * 2 + time * 0.0008;
+      const topicDist = scale * 0.75;
+      const topicX = cx + Math.cos(topicAngle) * topicDist;
+      const topicY = cy + Math.sin(topicAngle) * topicDist;
+
+      // 连接线
+      for (let i = 0; i < count * 0.02; i++) {
+        const progress = Math.random();
+        points.push({
+          x: cx + (topicX - cx) * progress + (Math.random() - 0.5) * 8 + panX,
+          y: cy + (topicY - cy) * progress + (Math.random() - 0.5) * 8 + panY
+        });
+      }
+
+      // 主题节点
+      const nodeSize = scale * 0.1;
+      for (let i = 0; i < count * 0.03; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = nodeSize * (0.6 + Math.random() * 0.4);
+        points.push({
+          x: topicX + Math.cos(angle) * r + panX,
+          y: topicY + Math.sin(angle) * r + panY
+        });
+      }
+    }
+
+    // 向外延伸的探索路径 - 螺旋轨迹
+    for (let i = 0; i < count * 0.1; i++) {
+      const t = Math.random();
+      const spiralAngle = t * Math.PI * 4 + time * 0.001;
+      const spiralR = scale * (0.3 + t * 0.8);
+      points.push({
+        x: cx + Math.cos(spiralAngle) * spiralR + (Math.random() - 0.5) * 15 + panX,
+        y: cy + Math.sin(spiralAngle) * spiralR + (Math.random() - 0.5) * 15 + panY
       });
     }
   }
@@ -1228,13 +1459,6 @@ function animate() {
   drawBackgroundGlow();
 
   const scene = scenes[currentScene];
-
-  // 粒子消退原画
-  if (isPaintingVisible && paintingRevealProgress < 1) {
-    paintingRevealProgress += 0.005;
-    const painting = document.getElementById('painting');
-    painting.style.opacity = Math.max(0, 1 - paintingRevealProgress);
-  }
 
   for (let i = 0; i < particles.length; i++) {
     particles[i].update(1, isMouseMoving);
@@ -1325,29 +1549,12 @@ document.querySelectorAll('.scene-btn').forEach(btn => {
 function switchScene(sceneKey) {
   if (currentScene === sceneKey) return;
   currentScene = sceneKey;
-  paintingRevealProgress = 0;
 
   document.querySelectorAll('.scene-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.scene === sceneKey);
   });
 
   const scene = scenes[sceneKey];
-
-  // 更新原画
-  const painting = document.getElementById('painting');
-  if (scene.painting) {
-    painting.src = scene.painting;
-    painting.classList.remove('fading');
-    painting.classList.add('entering');
-    painting.style.opacity = 0.95;
-    isPaintingVisible = true;
-  } else {
-    painting.classList.add('fading');
-    setTimeout(() => {
-      painting.src = '';
-      isPaintingVisible = false;
-    }, 2000);
-  }
 
   // 更新信息
   const infoEl = document.getElementById('sceneInfo');
@@ -1394,15 +1601,9 @@ function enterImmersive() {
   if (isImmersive) {
     document.body.classList.add('immersive-mode');
     btn.textContent = '⟡ 退 出 沉 浸 ⟡';
-    // 原画放大
-    const painting = document.getElementById('painting');
-    painting.style.transform = 'translate(-50%, -50%) scale(1.3)';
-    painting.style.transition = 'transform 3s ease';
   } else {
     document.body.classList.remove('immersive-mode');
-    btn.textContent = '⟡ 进 入 场 景 ⟡';
-    const painting = document.getElementById('painting');
-    painting.style.transform = 'translate(-50%, -50%) scale(1)';
+    btn.textContent = '⟡ 进 入 学 习 ⟡';
   }
 }
 
@@ -1415,13 +1616,6 @@ setTimeout(() => {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('sceneInfo').classList.add('show');
   document.getElementById('poemDisplay').classList.add('show');
-
-  // 初始化原画
-  const painting = document.getElementById('painting');
-  if (scenes[currentScene].painting) {
-    painting.src = scenes[currentScene].painting;
-    painting.classList.add('entering');
-  }
 }, 1500);
 
 animate();

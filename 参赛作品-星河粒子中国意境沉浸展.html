@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星河粒子 · 中国意境沉浸展</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0a0705;
+    font-family: 'Noto Serif SC', 'STSong', serif;
+    color: #d4af6a;
+    user-select: none;
+  }
+
+  #bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  #canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    cursor: crosshair;
+  }
+
+  .overlay {
+    position: fixed;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* 原画展示层 */
+  .original-painting {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 70%;
+    max-height: 70%;
+    z-index: 3;
+    opacity: 0.9;
+    transition: opacity 2s ease, transform 2s ease;
+    pointer-events: none;
+    filter: sepia(20%) saturate(1.2) brightness(0.95);
+    border: 3px solid rgba(212, 175, 106, 0.4);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), inset 0 0 100px rgba(212, 175, 106, 0.1);
+  }
+
+  .original-painting.fading {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  .original-painting.entering {
+    animation: enterPainting 2s ease-out forwards;
+  }
+
+  @keyframes enterPainting {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    100% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  .title-section {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .main-title {
+    font-family: 'Ma Shan Zheng', 'STKaiti', serif;
+    font-size: 52px;
+    font-weight: 400;
+    background: linear-gradient(180deg, #f4d77e 0%, #d4af6a 50%, #8b6929 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 12px;
+    text-shadow: 0 0 40px rgba(212, 175, 106, 0.3);
+    animation: titleGlow 4s ease-in-out infinite alternate;
+  }
+
+  .sub-title {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #9a8560;
+    letter-spacing: 6px;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
+
+  @keyframes titleGlow {
+    from { text-shadow: 0 0 40px rgba(212, 175, 106, 0.2); }
+    to { text-shadow: 0 0 80px rgba(212, 175, 106, 0.6), 0 0 120px rgba(212, 175, 106, 0.2); }
+  }
+
+  /* 场景选择面板 */
+  .scene-panel {
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    pointer-events: auto;
+    background: rgba(15, 10, 5, 0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 999px;
+    padding: 8px 14px;
+  }
+
+  .scene-btn {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #8a7a5c;
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scene-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(244, 215, 126, 0.3) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    border-radius: 50%;
+  }
+
+  .scene-btn:hover::before {
+    width: 150px;
+    height: 150px;
+  }
+
+  .scene-btn:hover {
+    color: #f4d77e;
+  }
+
+  .scene-btn.active {
+    color: #0a0705;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    box-shadow: 0 0 30px rgba(212, 175, 106, 0.5);
+  }
+
+  /* 诗句展示 */
+  .poem-display {
+    top: 50%;
+    right: 80px;
+    transform: translateY(-50%);
+    text-align: right;
+    max-width: 160px;
+    opacity: 0;
+    transition: opacity 1.5s ease, transform 1.5s ease;
+    transform: translateY(-50%) translateX(30px);
+  }
+
+  .poem-display.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .poem-text {
+    font-family: 'Ma Shan Zheng', 'STKaiti', serif;
+    font-size: 36px;
+    line-height: 2;
+    color: #e8cf8f;
+    writing-mode: vertical-rl;
+    -webkit-writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: 12px;
+    text-shadow: 0 0 30px rgba(232, 207, 143, 0.4);
+  }
+
+  .poem-author {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #8a7a5c;
+    margin-top: 24px;
+    letter-spacing: 4px;
+    text-align: right;
+  }
+
+  /* 场景信息 */
+  .scene-info {
+    top: 50%;
+    left: 80px;
+    transform: translateY(-50%);
+    max-width: 220px;
+    opacity: 0;
+    transition: opacity 1.5s ease, transform 1.5s ease;
+    transform: translateY(-50%) translateX(-30px);
+  }
+
+  .scene-info.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .info-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    color: #8a7a5c;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    border-left: 3px solid #d4af6a;
+    padding-left: 14px;
+  }
+
+  .info-title {
+    font-family: 'Ma Shan Zheng', 'STKaiti', serif;
+    font-size: 32px;
+    color: #f4d77e;
+    letter-spacing: 6px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .info-desc {
+    font-size: 14px;
+    color: #a89673;
+    line-height: 2;
+    margin-top: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* 交互提示 */
+  .hint {
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 11px;
+    color: #5a4c2e;
+    letter-spacing: 4px;
+    text-align: center;
+    animation: fadeHint 3s ease-in-out infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes fadeHint {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.9; }
+  }
+
+  /* 进入场景按钮 */
+  .enter-btn {
+    position: fixed;
+    bottom: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #d4af6a;
+    background: rgba(15, 10, 5, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    padding: 12px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 4px;
+    transition: all 0.4s ease;
+    opacity: 0;
+    pointer-events: none;
+    animation: fadeInUp 1s ease 1.5s forwards;
+  }
+
+  .enter-btn:hover {
+    background: rgba(212, 175, 106, 0.2);
+    border-color: #d4af6a;
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 0 30px rgba(212, 175, 106, 0.3);
+  }
+
+  .enter-btn.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* 装饰角标 */
+  .corner {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .corner.tl { top: 25px; left: 25px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 25px; right: 25px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 25px; left: 25px; border-right: none; border-top: none; }
+  .corner.br { bottom: 25px; right: 25px; border-left: none; border-top: none; }
+
+  /* 进度条 */
+  .progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d4af6a, transparent);
+    z-index: 10;
+    pointer-events: none;
+    transition: width 0.3s ease;
+  }
+
+  /* 氛围效果层 */
+  .ambience-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* 加载指示器 */
+  .loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #d4af6a;
+    letter-spacing: 4px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* 沉浸模式 */
+  .immersive-mode .title-section,
+  .immersive-mode .scene-panel,
+  .immersive-mode .hint,
+  .immersive-mode .scene-info,
+  .immersive-mode .poem-display,
+  .immersive-mode .corner {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .immersive-mode:hover .title-section,
+  .immersive-mode:hover .scene-panel,
+  .immersive-mode:hover .hint,
+  .immersive-mode:hover .scene-info,
+  .immersive-mode:hover .poem-display,
+  .immersive-mode:hover .corner {
+    opacity: 1;
+  }
+
+  /* 顶部导航 */
+  .top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 50px;
+    pointer-events: none;
+  }
+
+  .nav-brand {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 20px;
+    color: #d4af6a;
+    letter-spacing: 4px;
+    pointer-events: auto;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #8a7a5c;
+    text-decoration: none;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .nav-link:hover { color: #f4d77e; }
+
+  .nav-link.active { color: #f4d77e; }
+
+  .nav-cta {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #0a0705;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    border: none;
+    padding: 8px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(212, 175, 106, 0.4);
+  }
+
+  /* 报名按钮 */
+  .register-btn {
+    position: fixed;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%) translateX(60px);
+    z-index: 15;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #0a0705;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 4px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(212, 175, 106, 0.3);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .register-btn.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+  }
+
+  .register-btn:hover {
+    transform: translateY(-50%) translateX(0) scale(1.05);
+    box-shadow: 0 8px 30px rgba(212, 175, 106, 0.6);
+  }
+
+  /* 剩余名额 + 倒计时 */
+  .stats-bar {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 50px;
+    padding: 14px 30px;
+    background: rgba(15, 10, 5, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .stats-bar.show { opacity: 1; }
+
+  .stat-item {
+    text-align: center;
+    color: #d4af6a;
+  }
+
+  .stat-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 10px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 18px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+  }
+
+  .stat-value.flash {
+    animation: flashValue 1.2s ease-in-out infinite;
+  }
+
+  @keyframes flashValue {
+    0%, 100% { color: #f4d77e; }
+    50% { color: #ff7a7a; }
+  }
+
+  /* 报名表单弹窗 */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(5, 3, 2, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    width: 90%;
+    max-width: 520px;
+    background: linear-gradient(180deg, #1a1208 0%, #0a0705 100%);
+    border: 1px solid rgba(212, 175, 106, 0.4);
+    border-radius: 8px;
+    padding: 50px 50px 40px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(212, 175, 106, 0.15);
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-overlay.show .modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal::before, .modal::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d4af6a;
+  }
+
+  .modal::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .modal::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    color: #8a7a5c;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    color: #f4d77e;
+    border-color: #f4d77e;
+    transform: rotate(90deg);
+  }
+
+  .modal-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 32px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    letter-spacing: 8px;
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    text-align: center;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 11px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(15, 10, 5, 0.6);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 4px;
+    color: #f4d77e;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: #d4af6a;
+    background: rgba(15, 10, 5, 0.8);
+    box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.1);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .form-select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4af6a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  .form-select option {
+    background: #0a0705;
+    color: #f4d77e;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 14px;
+  }
+
+  .form-row .form-group { flex: 1; }
+
+  .form-gender {
+    display: flex;
+    gap: 12px;
+  }
+
+  .gender-option {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    background: rgba(15, 10, 5, 0.6);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 4px;
+    color: #8a7a5c;
+    cursor: pointer;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    transition: all 0.3s ease;
+  }
+
+  .gender-option.active {
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    color: #0a0705;
+    border-color: #d4af6a;
+  }
+
+  .form-submit {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 24px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    color: #0a0705;
+    border: none;
+    border-radius: 999px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 15px;
+    letter-spacing: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-submit::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    border-radius: 50%;
+  }
+
+  .form-submit:hover::before { width: 300px; height: 300px; }
+
+  .form-submit:hover {
+    box-shadow: 0 8px 30px rgba(212, 175, 106, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .form-agreement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #8a7a5c;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  .form-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1px solid rgba(212, 175, 106, 0.4);
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .form-checkbox.checked {
+    background: #d4af6a;
+  }
+
+  .form-checkbox.checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0a0705;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  /* 报名成功提示 */
+  .success-modal {
+    text-align: center;
+    padding: 30px 0 10px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border: 2px solid #d4af6a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .success-icon::before {
+    content: '';
+    width: 26px;
+    height: 14px;
+    border-left: 2px solid #f4d77e;
+    border-bottom: 2px solid #f4d77e;
+    transform: rotate(-45deg) translate(4px, -4px);
+  }
+
+  .success-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 28px;
+    color: #f4d77e;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+  }
+
+  .success-msg {
+    font-size: 13px;
+    color: #8a7a5c;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .success-code {
+    display: inline-block;
+    padding: 10px 24px;
+    background: rgba(212, 175, 106, 0.1);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 4px;
+    color: #f4d77e;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    letter-spacing: 4px;
+    margin-bottom: 24px;
+  }
+
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .top-nav { padding: 14px 20px; }
+    .nav-brand { font-size: 16px; letter-spacing: 2px; }
+    .nav-links { display: none; }
+    .nav-cta { padding: 6px 16px; font-size: 12px; }
+    .stats-bar { top: 70px; padding: 10px 20px; gap: 24px; }
+    .stat-label { font-size: 9px; }
+    .stat-value { font-size: 14px; }
+    .register-btn { right: 20px; padding: 10px 18px; font-size: 12px; }
+    .modal { padding: 40px 30px 30px; }
+    .modal-title { font-size: 24px; letter-spacing: 4px; }
+    .form-row { flex-direction: column; gap: 0; }
+    .form-gender { gap: 8px; }
+    .main-title { font-size: 32px; letter-spacing: 6px; }
+    .sub-title { font-size: 11px; letter-spacing: 3px; }
+    .scene-panel { padding: 6px 10px; gap: 3px; bottom: 30px; }
+    .scene-btn { font-size: 12px; padding: 8px 12px; letter-spacing: 1px; }
+    .poem-display { right: 20px; max-width: 100px; }
+    .poem-text { font-size: 24px; letter-spacing: 6px; }
+    .scene-info { left: 20px; max-width: 140px; }
+    .info-title { font-size: 22px; }
+    .info-desc { font-size: 11px; }
+    .hint { bottom: 120px; font-size: 10px; }
+    .enter-btn { bottom: 160px; font-size: 12px; padding: 10px 22px; }
+    .corner { width: 30px; height: 30px; }
+    .original-painting { max-width: 85%; max-height: 50%; }
+  }
+</style>
+</head>
+<body class="immersive-mode">
+<div class="loading" id="loading">粒 子 聚 集 中 · · ·</div>
+
+<!-- 背景画布 - 氛围效果 -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- 主画布 - 粒子系统 -->
+<canvas id="canvas"></canvas>
+
+<!-- 原画展示层 -->
+<img class="original-painting" id="painting" alt="">
+
+<!-- 氛围效果层 -->
+<div class="ambience-layer" id="ambienceLayer"></div>
+
+<!-- 装饰角标 -->
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<!-- 顶部导航 -->
+<nav class="top-nav">
+  <div class="nav-brand">国 风 雅 集</div>
+  <div class="nav-links">
+    <a class="nav-link active" data-section="home">首 页</a>
+    <a class="nav-link" data-section="scene">场 景</a>
+    <a class="nav-link" data-section="guide">导 览</a>
+    <a class="nav-link" data-section="about">关 于</a>
+  </div>
+  <button class="nav-cta" id="navCta">立 即 报 名</button>
+</nav>
+
+<!-- 统计条：剩余名额 + 倒计时 -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-item">
+    <div class="stat-label">剩 余 名 额</div>
+    <div class="stat-value flash" id="remainingSeats">23</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">已 报 名</div>
+    <div class="stat-value" id="registeredCount">277</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">距 离 开 幕</div>
+    <div class="stat-value" id="countdown">07 天 23 时</div>
+  </div>
+</div>
+
+<!-- 主场景内容 -->
+<!-- 标题 -->
+<div class="overlay title-section">
+  <div class="main-title">星河粒子</div>
+  <div class="sub-title">中 国 意 境 沉 浸 展</div>
+</div>
+
+<!-- 场景信息 -->
+<div class="overlay scene-info" id="sceneInfo">
+  <div class="info-label" id="infoLabel">· 山 水 ·</div>
+  <div class="info-title" id="infoTitle">千里江山</div>
+  <div class="info-desc" id="infoDesc">王希孟十八岁画尽天下青绿，山与水、云与雾，在点画之间呼吸。这是大宋的少年心气。</div>
+</div>
+
+<!-- 诗句展示 -->
+<div class="overlay poem-display" id="poemDisplay">
+  <div class="poem-text" id="poemText"></div>
+  <div class="poem-author" id="poemAuthor"></div>
+</div>
+
+<!-- 进入场景按钮 -->
+<button class="enter-btn" id="enterBtn">⟡ 观 境 入 画 ⟡</button>
+
+<!-- 场景选择 -->
+<div class="overlay scene-panel">
+  <button class="scene-btn active" data-scene="mountains">山 水</button>
+  <button class="scene-btn" data-scene="poetry">诗 词</button>
+  <button class="scene-btn" data-scene="opera">戏 曲</button>
+  <button class="scene-btn" data-scene="garden">园 林</button>
+  <button class="scene-btn" data-scene="calligraphy">书 法</button>
+  <button class="scene-btn" data-scene="stars">星 象</button>
+</div>
+
+<!-- 交互提示 -->
+<div class="overlay hint">⟡ 原画渐隐 · 粒子成画 · 滚轮缩放 · 拖拽漫游 · 双击入境 ⟡</div>
+
+<!-- 报名按钮 -->
+<button class="register-btn" id="registerBtn">立 即 报 名</button>
+
+<!-- 报名表单弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="formModal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <h2 class="modal-title">雅 集 报 名</h2>
+    <p class="modal-subtitle">— 星河粒子 · 中国意境沉浸展 —</p>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label class="form-label">姓 名</label>
+        <input class="form-input" type="text" name="name" placeholder="请输入您的姓名" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">手 机 号</label>
+          <input class="form-input" type="tel" name="phone" placeholder="11位手机号" maxlength="11" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">年 龄</label>
+          <input class="form-input" type="number" name="age" placeholder="可选" min="1" max="120">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">性 别</label>
+        <div class="form-gender">
+          <div class="gender-option active" data-value="male">男 子</div>
+          <div class="gender-option" data-value="female">女 子</div>
+          <div class="gender-option" data-value="other">其 他</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">偏 好 场 景</label>
+        <select class="form-select" name="scene" id="sceneSelect">
+          <option value="">— 任意场景皆可 —</option>
+          <option value="mountains">山水 · 千里江山</option>
+          <option value="poetry">诗词 · 枫桥夜泊</option>
+          <option value="opera">戏曲 · 牡丹亭</option>
+          <option value="garden">园林 · 苏州园林</option>
+          <option value="calligraphy">书法 · 兰亭集序</option>
+          <option value="stars">星象 · 二十八星宿</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">备 注</label>
+        <textarea class="form-textarea" name="remark" placeholder="如有特别需求或想说的话，可在此留言（选填）"></textarea>
+      </div>
+
+      <div class="form-agreement" id="agreement">
+        <span class="form-checkbox" id="checkbox"></span>
+        <span>我已阅读并同意《活动须知》与《用户协议》</span>
+      </div>
+
+      <button type="submit" class="form-submit">提 交 报 名</button>
+    </form>
+  </div>
+
+  <!-- 报名成功弹窗 -->
+  <div class="modal" id="successModal" style="display:none;">
+    <button class="modal-close" id="successClose">✕</button>
+    <div class="success-modal">
+      <div class="success-icon"></div>
+      <h2 class="success-title">报 名 成 功</h2>
+      <p class="success-msg">感谢您对国风雅集的关注<br>我们将以短信形式发送活动详情</p>
+      <div class="success-code" id="successCode">YJ-2026-0619-886</div>
+      <br>
+      <button class="form-submit" id="successOk">继 续 漫 游</button>
+    </div>
+  </div>
+</div>
+
+<!-- 辅助画布 -->
+<canvas id="shapeCanvas" style="display:none;"></canvas>
+
+<script>
+// ==================== 全局变量 ====================
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+const shapeCanvas = document.getElementById('shapeCanvas');
+const shapeCtx = shapeCanvas.getContext('2d', { willReadFrequently: true });
+
+let W, H;
+let particles = [];
+let ambientParticles = []; // 氛围粒子
+let floatingElements = []; // 飘浮元素
+let mouseX = 0, mouseY = 0;
+let isMouseMoving = false;
+let mouseTimeout;
+let currentScene = 'mountains';
+let isImmersive = false;
+let isPaintingVisible = true;
+let paintingRevealProgress = 0;
+let paintingIsFading = false;
+let sceneTransitionProgress = 0;
+let isTransitioning = false;
+let time = 0;
+let zoom = 1;
+let panX = 0, panY = 0;
+let isDragging = false;
+let lastMouseX, lastMouseY;
+
+// ==================== 场景配置 ====================
+const scenes = {
+  mountains: {
+    label: '· 山 水 ·',
+    title: '千里江山',
+    desc: '王希孟十八岁画尽天下青绿，山与水、云与雾，在点画之间呼吸。这是大宋的少年心气。',
+    poem: '咫尺千里\n咫尺万里',
+    author: '— 王希孟《千里江山图》',
+    color: { main: '#4a8f6b', accent: '#f4d77e', glow: '#2d5a4a', secondary: '#1a3a2a' },
+    type: 'shanshui',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg/1280px-Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg',
+    ambience: 'mist'
+  },
+  poetry: {
+    label: '· 诗 词 ·',
+    title: '枫桥夜泊',
+    desc: '姑苏城外，寒山寺中，一缕钟声穿越千年的月光，落在游子的心头。',
+    poem: '月落乌啼霜满天\n江枫渔火对愁眠',
+    author: '— 张继《枫桥夜泊》',
+    color: { main: '#8b7355', accent: '#e8cf8f', glow: '#4a3f2e', secondary: '#2a2520' },
+    type: 'fengqiao',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Fengqiao_Ye_Bo.jpg/800px-Fengqiao_Ye_Bo.jpg',
+    ambience: 'fireflies'
+  },
+  opera: {
+    label: '· 戏 曲 ·',
+    title: '牡丹亭 · 惊梦',
+    desc: '良辰美景奈何天，赏心乐事谁家院。杜丽娘的一梦，是中国最动人的浪漫。',
+    poem: '原来姹紫嫣红\n开遍似这般都付与断井颓垣',
+    author: '— 汤显祖《牡丹亭》',
+    color: { main: '#c96a7e', accent: '#f4d77e', glow: '#6b2e3d', secondary: '#3a1a25' },
+    type: 'mudanting',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Mudan_ting_-_The_Peony_Pavilion.jpg/800px-Mudan_ting_-_The_Peony_Pavilion.jpg',
+    ambience: 'petals'
+  },
+  garden: {
+    label: '· 园 林 ·',
+    title: '苏州园林',
+    desc: '亭台楼阁间，一窗一画；曲水流觞处，一步一景。是中国人在人间的天堂。',
+    poem: '虽由人作\n宛自天开',
+    author: '— 计成《园冶》',
+    color: { main: '#6b8e6b', accent: '#d4af6a', glow: '#3a5a3a', secondary: '#1a2a1a' },
+    type: 'yuanlin',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Chen_Hongshou%2C_plant_treatise_album_-_Humble_Administrator%27s_Garden.jpg/800px-Chen_Hongshou%2C_plant_treatise_album_-_Humble_Administrator%27s_Garden.jpg',
+    ambience: 'leaves'
+  },
+  calligraphy: {
+    label: '· 书 法 ·',
+    title: '兰亭集序',
+    desc: '王羲之醉笔写下天下第一行书，曲水流觞间，是魏晋风度，是千年的笔意。',
+    poem: '仰观宇宙之大\n俯察品类之盛',
+    author: '— 王羲之《兰亭集序》',
+    color: { main: '#d4af6a', accent: '#f4d77e', glow: '#4a3f2e', secondary: '#2a2a1a' },
+    type: 'lanting',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Emperor_Xuanzhe%27s_Rendering_of_Lanting_Xu.jpg/800px-Emperor_Xuanzhe%27s_Rendering_of_Lanting_Xu.jpg',
+    ambience: 'ink'
+  },
+  stars: {
+    label: '· 星 象 ·',
+    title: '二十八星宿',
+    desc: '古人仰观天象，把满天繁星分成二十八宿。紫微垣中，藏着整个宇宙的秩序。',
+    poem: '星垂平野阔\n月涌大江流',
+    author: '— 杜甫《旅夜书怀》',
+    color: { main: '#5a7ac9', accent: '#e8d8a8', glow: '#2e3f6b', secondary: '#1a1f3a' },
+    type: 'star',
+    painting: null,
+    ambience: 'stars'
+  }
+};
+
+// ==================== 粒子类 ====================
+class Particle {
+  constructor(x, y, tx, ty) {
+    this.x = x;
+    this.y = y;
+    this.tx = tx;
+    this.ty = ty;
+    this.ox = x;
+    this.oy = y;
+    this.vx = (Math.random() - 0.5) * 1;
+    this.vy = (Math.random() - 0.5) * 1;
+    this.size = Math.random() * 2 + 0.5;
+    this.baseSize = this.size;
+    this.friction = 0.88 + Math.random() * 0.08;
+    this.alpha = 0;
+    this.targetAlpha = 0.5 + Math.random() * 0.5;
+    this.wobble = Math.random() * Math.PI * 2;
+    this.wobbleSpeed = 0.008 + Math.random() * 0.015;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+    this.trail = [];
+    this.maxTrail = 5;
+  }
+
+  update(mouseDisturb, isMouseActive) {
+    const dx = this.tx - this.x;
+    const dy = this.ty - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // 追踪目标
+    if (dist > 0.5) {
+      const force = dist * 0.015;
+      this.vx += (dx / dist) * force;
+      this.vy += (dy / dist) * force;
+    }
+
+    // 鼠标扰动
+    if (mouseDisturb > 0 && isMouseActive) {
+      const mdx = this.x - mouseX;
+      const mdy = this.y - mouseY;
+      const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+      if (mdist < 200 && mdist > 0) {
+        const force = (200 - mdist) * 0.004;
+        this.vx += (mdx / mdist) * force;
+        this.vy += (mdy / mdist) * force;
+        this.targetAlpha = 0.8 + Math.sin(time * 0.05) * 0.2;
+      }
+    }
+
+    // 摆动效果
+    this.wobble += this.wobbleSpeed;
+    this.rotation += this.rotationSpeed;
+    this.vx += Math.sin(this.wobble) * 0.02;
+    this.vy += Math.cos(this.wobble * 0.7) * 0.02;
+
+    // 阻力
+    this.vx *= this.friction;
+    this.vy *= this.friction;
+
+    // 更新位置
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // 拖尾效果
+    if (isMouseActive && dist < 50) {
+      this.trail.unshift({ x: this.x, y: this.y, alpha: this.alpha });
+      if (this.trail.length > this.maxTrail) {
+        this.trail.pop();
+      }
+    }
+
+    // 透明度
+    if (dist < 30) {
+      this.alpha += (this.targetAlpha - this.alpha) * 0.06;
+    } else if (dist < 150) {
+      this.alpha += ((this.targetAlpha * 0.6) - this.alpha) * 0.04;
+    } else {
+      this.alpha += (0.08 - this.alpha) * 0.03;
+    }
+
+    // 大小脉动
+    this.size = this.baseSize * (0.7 + Math.sin(time * 0.015 + this.wobble) * 0.4);
+  }
+
+  draw(ctx, color) {
+    const brightness = 0.9 + Math.sin(this.wobble + time * 0.02) * 0.3;
+
+    // 绘制拖尾
+    for (let i = 0; i < this.trail.length; i++) {
+      const t = this.trail[i];
+      const trailAlpha = (1 - i / this.maxTrail) * 0.3 * this.alpha;
+      ctx.globalAlpha = trailAlpha;
+      ctx.fillStyle = color.accent;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, this.size * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha)) * brightness;
+
+    // 外发光
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 5);
+    grad.addColorStop(0, color.accent);
+    grad.addColorStop(0.2, color.main);
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 核心
+    ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha)) * brightness * 1.3;
+    ctx.fillStyle = color.accent;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 0.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// ==================== 氛围粒子类 ====================
+class AmbientParticle {
+  constructor(type) {
+    this.type = type;
+    this.reset();
+  }
+
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.vy = (Math.random() - 0.5) * 0.5;
+    this.size = Math.random() * 3 + 1;
+    this.alpha = Math.random() * 0.5 + 0.2;
+    this.life = 0;
+    this.maxLife = 300 + Math.random() * 200;
+    this.wobble = Math.random() * Math.PI * 2;
+    this.wobbleSpeed = 0.01 + Math.random() * 0.02;
+  }
+
+  update(sceneColor) {
+    this.life++;
+    this.wobble += this.wobbleSpeed;
+
+    if (this.type === 'fireflies') {
+      this.vx += Math.sin(this.wobble) * 0.02;
+      this.vy += Math.cos(this.wobble * 0.8) * 0.02;
+      this.alpha = 0.3 + Math.sin(time * 0.05 + this.wobble) * 0.3;
+    } else if (this.type === 'mist') {
+      this.vy -= 0.1;
+      this.alpha = 0.1 + Math.sin(this.wobble) * 0.05;
+    } else if (this.type === 'stars') {
+      this.alpha = 0.5 + Math.sin(time * 0.03 + this.wobble) * 0.5;
+    } else {
+      this.vx += (Math.random() - 0.5) * 0.1;
+      this.vy += (Math.random() - 0.5) * 0.1;
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vx *= 0.99;
+    this.vy *= 0.99;
+
+    if (this.life > this.maxLife || this.x < 0 || this.x > W || this.y < 0 || this.y > H) {
+      this.reset();
+    }
+  }
+
+  draw(ctx, color) {
+    ctx.globalAlpha = this.alpha;
+
+    if (this.type === 'fireflies') {
+      const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 8);
+      grad.addColorStop(0, '#ffffaa');
+      grad.addColorStop(0.3, color.accent);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 8, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.type === 'mist') {
+      ctx.fillStyle = `rgba(200, 200, 200, ${this.alpha})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 10, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.type === 'stars') {
+      ctx.fillStyle = color.accent;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = color.accent;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+// ==================== 飘浮元素类 ====================
+class FloatingElement {
+  constructor(type) {
+    this.type = type;
+    this.reset();
+  }
+
+  reset() {
+    if (this.type === 'petal') {
+      this.x = Math.random() * W;
+      this.y = -50;
+      this.size = 8 + Math.random() * 12;
+      this.vx = (Math.random() - 0.5) * 1;
+      this.vy = Math.random() * 1 + 0.5;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+      this.color = ['#ffb6c1', '#ffc0cb', '#ff69b4', '#ff1493'][Math.floor(Math.random() * 4)];
+    } else if (this.type === 'leaf') {
+      this.x = Math.random() * W;
+      this.y = -50;
+      this.size = 10 + Math.random() * 15;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = Math.random() * 0.8 + 0.3;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotationSpeed = (Math.random() - 0.5) * 0.03;
+      this.color = ['#6b8e6b', '#8fbc8f', '#9acd32', '#556b2f'][Math.floor(Math.random() * 4)];
+    } else if (this.type === 'ink') {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.size = 2 + Math.random() * 4;
+      this.vx = 0;
+      this.vy = -0.2 - Math.random() * 0.3;
+      this.alpha = 0.3 + Math.random() * 0.4;
+    }
+
+    this.wobble = Math.random() * Math.PI * 2;
+    this.wobbleSpeed = 0.02 + Math.random() * 0.02;
+  }
+
+  update() {
+    this.wobble += this.wobbleSpeed;
+
+    if (this.type === 'petal' || this.type === 'leaf') {
+      this.x += this.vx + Math.sin(this.wobble) * 0.5;
+      this.y += this.vy;
+      this.rotation += this.rotationSpeed + Math.sin(this.wobble) * 0.01;
+      if (this.y > H + 50) this.reset();
+    } else if (this.type === 'ink') {
+      this.y += this.vy;
+      this.x += Math.sin(this.wobble) * 0.3;
+      this.alpha -= 0.001;
+      if (this.alpha <= 0 || this.y < -20) this.reset();
+    }
+  }
+
+  draw(ctx) {
+    if (this.type === 'petal') {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.globalAlpha = 0.7;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.size, this.size * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    } else if (this.type === 'leaf') {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -this.size);
+      ctx.quadraticCurveTo(this.size * 0.8, 0, 0, this.size);
+      ctx.quadraticCurveTo(-this.size * 0.8, 0, 0, -this.size);
+      ctx.fill();
+      ctx.restore();
+    } else if (this.type === 'ink') {
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+// ==================== 初始化 ====================
+function resize() {
+  W = canvas.width = bgCanvas.width = window.innerWidth;
+  H = canvas.height = bgCanvas.height = window.innerHeight;
+  initParticles();
+  initAmbience();
+  generateTargetPositions();
+}
+
+window.addEventListener('resize', resize);
+
+function initParticles() {
+  particles = [];
+  const count = Math.min(8000, Math.floor((W * H) / 400));
+  for (let i = 0; i < count; i++) {
+    const p = new Particle(
+      Math.random() * W,
+      Math.random() * H,
+      Math.random() * W,
+      Math.random() * H
+    );
+    particles.push(p);
+  }
+}
+
+function initAmbience() {
+  const scene = scenes[currentScene];
+  const ambienceType = scene.ambience;
+
+  ambientParticles = [];
+  floatingElements = [];
+
+  const ambientCount = 150;
+  for (let i = 0; i < ambientCount; i++) {
+    ambientParticles.push(new AmbientParticle(ambienceType));
+  }
+
+  const floatCount = 30;
+  if (ambienceType === 'petals') {
+    for (let i = 0; i < floatCount; i++) {
+      floatingElements.push(new FloatingElement('petal'));
+    }
+  } else if (ambienceType === 'leaves') {
+    for (let i = 0; i < floatCount; i++) {
+      floatingElements.push(new FloatingElement('leaf'));
+    }
+  } else if (ambienceType === 'ink') {
+    for (let i = 0; i < floatCount * 2; i++) {
+      floatingElements.push(new FloatingElement('ink'));
+    }
+  }
+}
+
+// ==================== 形状生成 ====================
+function generateShapePoints(type, count) {
+  const points = [];
+  const cx = W / 2 + panX;
+  const cy = H / 2 + panY;
+  const scale = Math.min(W, H) * 0.4 * zoom;
+
+  if (type === 'shanshui') {
+    // 山水 - 千里江山
+    // 远山 - 多层青绿山水
+    for (let layer = 0; layer < 6; layer++) {
+      const layerRatio = layer / 6;
+      const layerY = H * 0.25 + layerRatio * H * 0.55;
+      const layerScale = scale * (1.4 - layerRatio * 0.7);
+      const layerHeight = layerScale * (0.5 + (1 - layerRatio) * 0.4);
+
+      // 主山峰轮廓
+      const peakCount = 5 + layer;
+      for (let p = 0; p < peakCount; p++) {
+        const peakX = (p + 0.5) / peakCount;
+        const peakH = (0.4 + Math.random() * 0.5) * layerHeight;
+        const peakWidth = 0.08 + Math.random() * 0.05;
+
+        for (let i = 0; i < count * 0.04; i++) {
+          const t = Math.random();
+          const x = cx + (peakX - 0.5 + (t - 0.5) * peakWidth) * W * 1.6;
+          // 山峰曲线
+          const dist = Math.abs(t - 0.5) * 2;
+          const y = layerY - peakH * Math.exp(-dist * dist * 4) + (Math.random() - 0.5) * 8;
+          points.push({ x: x + panX, y: y + panY });
+        }
+
+        // 山体填充
+        for (let i = 0; i < count * 0.06; i++) {
+          const t = Math.random();
+          const x = cx + (peakX - 0.5 + (Math.random() - 0.5) * peakWidth * 1.2) * W * 1.6;
+          const dist = Math.abs(t - 0.5) * 2;
+          const y = layerY - peakH * Math.exp(-dist * dist * 4) * (0.5 + Math.random() * 0.5);
+          points.push({ x, y });
+        }
+      }
+
+      // 山脉之间的连绵起伏
+      for (let i = 0; i < count * 0.05; i++) {
+        const t = Math.random();
+        const x = Math.random() * W;
+        const waveY = Math.sin(t * Math.PI * 12 + layer * 1.5) * 15;
+        const peakInfluence = Math.sin(t * Math.PI * 4 + layer) * layerHeight * 0.3;
+        const y = layerY + waveY + peakInfluence;
+        points.push({ x: x + panX, y: y + panY });
+      }
+    }
+
+    // 江水 - 流动的曲线
+    const waterLines = 5;
+    for (let l = 0; l < waterLines; l++) {
+      const waterY = H * 0.7 + l * 4;
+      for (let i = 0; i < count * 0.04; i++) {
+        const t = i / (count * 0.04);
+        const x = t * W;
+        const wave = Math.sin(t * Math.PI * 8 + time * 0.003 + l) * 6;
+        const y = waterY + wave;
+        points.push({ x: x + panX, y: y + panY });
+      }
+    }
+
+    // 远帆 - 江面上的小船
+    for (let i = 0; i < count * 0.01; i++) {
+      const x = Math.random() * W;
+      const y = H * 0.7 + Math.random() * 20;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 留白云气
+    for (let i = 0; i < count * 0.08; i++) {
+      const y = H * 0.3 + Math.random() * H * 0.3;
+      const x = Math.random() * W;
+      points.push({ x: x + panX, y: y + panY + Math.sin(Math.random() * Math.PI) * 20 });
+    }
+
+  } else if (type === 'fengqiao') {
+    // 枫桥夜泊 - 月、桥、船、灯火
+    // 一轮明月
+    const moonX = cx + scale * 0.4;
+    const moonY = cy - scale * 0.3;
+    const moonR = scale * 0.3;
+
+    for (let i = 0; i < count * 0.25; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = moonR * (0.92 + Math.random() * 0.08);
+      points.push({
+        x: moonX + Math.cos(angle) * r + panX,
+        y: moonY + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 月晕
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = moonR * (1.0 + Math.random() * 0.4);
+      points.push({
+        x: moonX + Math.cos(angle) * r + (Math.random() - 0.5) * 10 + panX,
+        y: moonY + Math.sin(angle) * r + (Math.random() - 0.5) * 10 + panY
+      });
+    }
+
+    // 月光倒影 - 江面波光
+    for (let i = 0; i < count * 0.2; i++) {
+      const t = Math.random();
+      const x = moonX - moonR * 1.5 + t * moonR * 3;
+      const y = cy + scale * 0.2 + Math.sin(t * Math.PI * 6 + time * 0.005) * 8 + (Math.random() - 0.5) * 5;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 拱桥 - 枫桥
+    const bridgeX = cx - scale * 0.5;
+    const bridgeY = cy + scale * 0.05;
+    const bridgeR = scale * 0.4;
+
+    // 桥拱
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.PI + Math.random() * Math.PI; // 半圆
+      const r = bridgeR * (0.95 + Math.random() * 0.05);
+      points.push({
+        x: bridgeX + Math.cos(angle) * r + panX,
+        y: bridgeY + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 桥面
+    for (let i = 0; i < count * 0.05; i++) {
+      points.push({
+        x: bridgeX - bridgeR + Math.random() * bridgeR * 2 + panX,
+        y: bridgeY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 桥栏
+    for (let i = 0; i < count * 0.04; i++) {
+      const angle = Math.PI + Math.random() * Math.PI;
+      const r = bridgeR * 1.08;
+      points.push({
+        x: bridgeX + Math.cos(angle) * r + panX,
+        y: bridgeY + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 渔火
+    const firePositions = [
+      { x: bridgeX - bridgeR * 1.5, y: cy + scale * 0.2 },
+      { x: bridgeX + bridgeR * 1.5, y: cy + scale * 0.15 }
+    ];
+    for (const fire of firePositions) {
+      for (let i = 0; i < count * 0.03; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = scale * 0.05 * (0.7 + Math.random() * 0.5);
+        points.push({
+          x: fire.x + Math.cos(angle) * r + panX,
+          y: fire.y + Math.sin(angle) * r + panY
+        });
+      }
+    }
+
+    // 远山轮廓
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      const x = t * W;
+      const y = H * 0.45 + Math.sin(t * Math.PI * 6) * 20;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 树影 - 枫树
+    for (let i = 0; i < count * 0.08; i++) {
+      const treeX = bridgeX - bridgeR * 1.8 + Math.random() * scale * 0.3;
+      const treeY = bridgeY - scale * 0.2 + Math.random() * scale * 0.3;
+      points.push({ x: treeX + panX, y: treeY + panY });
+    }
+
+  } else if (type === 'mudanting') {
+    // 牡丹亭 - 牡丹、亭、人物
+    // 牡丹花 - 主角
+    const peonyCX = cx - scale * 0.3;
+    const peonyCY = cy - scale * 0.1;
+    const peonyR = scale * 0.5;
+
+    // 花瓣层 - 多层绽放
+    const petalLayers = 5;
+    for (let layer = 0; layer < petalLayers; layer++) {
+      const layerR = peonyR * (1 - layer * 0.15);
+      const petalsInLayer = 8 + layer * 2;
+
+      for (let p = 0; p < petalsInLayer; p++) {
+        const baseAngle = (p / petalsInLayer) * Math.PI * 2 + layer * 0.2;
+        for (let i = 0; i < count * 0.015; i++) {
+          const t = Math.random();
+          const petalAngle = baseAngle + (t - 0.5) * 0.6;
+          const dist = t * layerR;
+          const widthOffset = (Math.random() - 0.5) * layerR * 0.25 * (1 - t);
+          points.push({
+            x: peonyCX + Math.cos(petalAngle) * dist + Math.cos(petalAngle + Math.PI / 2) * widthOffset + panX,
+            y: peonyCY + Math.sin(petalAngle) * dist + Math.sin(petalAngle + Math.PI / 2) * widthOffset + panY
+          });
+        }
+      }
+    }
+
+    // 花蕊 - 金色
+    for (let i = 0; i < count * 0.04; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * peonyR * 0.15;
+      points.push({
+        x: peonyCX + Math.cos(angle) * r + panX,
+        y: peonyCY + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 牡丹亭 - 中式亭子
+    const pavilionX = cx + scale * 0.4;
+    const pavilionY = cy;
+    const pavilionW = scale * 0.4;
+    const pavilionH = scale * 0.5;
+
+    // 屋顶 - 飞檐
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      // 上檐
+      const eaveCurve = Math.sin(t * Math.PI) * 0.2;
+      points.push({
+        x: pavilionX - pavilionW * (0.7 + eaveCurve) + Math.random() * pavilionW * (1.4 + eaveCurve * 2) + panX,
+        y: pavilionY - pavilionH * 0.5 + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+    // 屋顶主体
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      points.push({
+        x: pavilionX - pavilionW / 2 + t * pavilionW + (Math.random() - 0.5) * 4 + panX,
+        y: pavilionY - pavilionH * 0.4 + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 亭柱
+    for (let col = 0; col < 4; col++) {
+      const colX = pavilionX - pavilionW * 0.3 + col * pavilionW * 0.2;
+      for (let i = 0; i < count * 0.02; i++) {
+        const y = pavilionY - pavilionH * 0.3 + Math.random() * pavilionH * 0.6;
+        points.push({
+          x: colX + (Math.random() - 0.5) * 3 + panX,
+          y: y + panY
+        });
+      }
+    }
+
+    // 栏杆
+    for (let i = 0; i < count * 0.03; i++) {
+      const t = Math.random();
+      points.push({
+        x: pavilionX - pavilionW * 0.35 + t * pavilionW * 0.7 + panX,
+        y: pavilionY + pavilionH * 0.2 + (Math.random() - 0.5) * 3 + panY
+      });
+    }
+
+    // 飘落的花瓣
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * (0.8 + Math.random() * 0.6);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + Math.sin(angle) * r * 0.7 + panY
+      });
+    }
+
+  } else if (type === 'yuanlin') {
+    // 苏州园林 - 亭台楼阁、假山、流水、树木
+    // 中央水池
+    const pondR = scale * 0.8;
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = pondR * (0.95 + Math.random() * 0.05);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + scale * 0.2 + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 主亭 - 临水
+    const pavilionX = cx - scale * 0.2;
+    const pavilionY = cy - scale * 0.1;
+    const pavilionW = scale * 0.5;
+    const pavilionH = scale * 0.6;
+
+    // 攒尖顶
+    for (let i = 0; i < count * 0.08; i++) {
+      const t = Math.random();
+      const topY = pavilionY - pavilionH * 0.5;
+      const topR = pavilionW * 0.5 * (1 - t);
+      const angle = Math.random() * Math.PI * 2;
+      points.push({
+        x: pavilionX + Math.cos(angle) * topR + panX,
+        y: topY + t * pavilionH * 0.3 + panY
+      });
+    }
+
+    // 亭柱
+    for (let col = 0; col < 4; col++) {
+      const colX = pavilionX - pavilionW * 0.4 + col * pavilionW * 0.27;
+      for (let i = 0; i < count * 0.02; i++) {
+        points.push({
+          x: colX + (Math.random() - 0.5) * 3 + panX,
+          y: pavilionY - pavilionH * 0.1 + Math.random() * pavilionH * 0.5 + panY
+        });
+      }
+    }
+
+    // 曲桥 - 九曲回廊
+    const bridgePoints = [
+      { x: pavilionX + pavilionW * 0.3, y: pavilionY + pavilionH * 0.3 },
+      { x: pavilionX + pavilionW * 0.6, y: pavilionY + pavilionH * 0.1 },
+      { x: pavilionX + pavilionW * 0.8, y: pavilionY + pavilionH * 0.4 },
+      { x: cx + scale * 0.5, y: cy + scale * 0.1 },
+      { x: cx + scale * 0.7, y: cy }
+    ];
+
+    for (let i = 0; i < count * 0.06; i++) {
+      const t = Math.random();
+      const segIdx = Math.floor(t * (bridgePoints.length - 1));
+      const segT = (t * (bridgePoints.length - 1)) - segIdx;
+      const p1 = bridgePoints[segIdx];
+      const p2 = bridgePoints[segIdx + 1];
+      const segX = p1.x + (p2.x - p1.x) * segT;
+      const segY = p1.y + (p2.y - p1.y) * segT;
+      points.push({
+        x: segX + (Math.random() - 0.5) * 6 + panX,
+        y: segY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 假山 - 左侧
+    for (let i = 0; i < count * 0.12; i++) {
+      const baseX = cx - scale * 0.6;
+      const baseY = cy + scale * 0.2;
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * 0.25 * (0.5 + Math.random() * 0.5);
+      points.push({
+        x: baseX + Math.cos(angle) * r + panX,
+        y: baseY + Math.sin(angle) * r * 0.7 + panY
+      });
+    }
+
+    // 柳树 - 枝条下垂
+    const willowX = cx - scale * 0.7;
+    const willowY = cy - scale * 0.3;
+    for (let i = 0; i < count * 0.1; i++) {
+      const branchT = Math.random();
+      const branchAngle = -Math.PI / 2 + (Math.random() - 0.5) * 0.6;
+      const x = willowX + Math.cos(branchAngle) * scale * 0.3 * branchT;
+      const y = willowY + Math.sin(branchAngle) * scale * 0.3 * branchT + branchT * scale * 0.4;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 右侧楼阁
+    const towerX = cx + scale * 0.5;
+    const towerY = cy - scale * 0.05;
+    for (let i = 0; i < count * 0.08; i++) {
+      const t = Math.random();
+      const floorH = scale * 0.3;
+      const floorY = towerY - floorH * 0.5 + Math.floor(t * 3) * floorH * 0.4;
+      const floorR = scale * 0.2 * (0.9 + Math.random() * 0.1);
+      const angle = Math.random() * Math.PI * 2;
+      points.push({
+        x: towerX + Math.cos(angle) * floorR + panX,
+        y: floorY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 水中倒影涟漪
+    for (let i = 0; i < count * 0.05; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = pondR * (1.0 + Math.random() * 0.3);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + scale * 0.2 + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+  } else if (type === 'lanting') {
+    // 兰亭集序 - 毛笔书法
+    // 使用离屏canvas绘制书法字
+    shapeCanvas.width = W;
+    shapeCanvas.height = H;
+    shapeCtx.clearRect(0, 0, W, H);
+    shapeCtx.fillStyle = '#000';
+    shapeCtx.fillRect(0, 0, W, H);
+    shapeCtx.fillStyle = '#fff';
+
+    // 主字 - 随机切换
+    const lantingChars = ['兰', '亭', '集', '序', '永', '和', '天', '地', '山', '水', '风', '月'];
+    const charIndex = Math.floor(time * 0.0003) % lantingChars.length;
+
+    // 多字布局
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 3; col++) {
+        const charIdx = (charIndex + row * 3 + col) % lantingChars.length;
+        const char = lantingChars[charIdx];
+
+        const charSize = Math.min(W, H) * (0.18 - row * 0.04);
+        shapeCtx.font = `bold ${charSize}px 'STKaiti', 'KaiTi', 'STSong', serif`;
+        shapeCtx.textAlign = 'center';
+        shapeCtx.textBaseline = 'middle';
+
+        const cx2 = cx + (col - 1) * scale * 0.7;
+        const cy2 = cy + (row - 0.5) * scale * 0.7;
+        shapeCtx.fillText(char, cx2, cy2);
+      }
+    }
+
+    // 提取字形粒子
+    const imageData = shapeCtx.getImageData(0, 0, W, H).data;
+    const samplePoints = [];
+    const step = 3;
+    for (let y = 0; y < H; y += step) {
+      for (let x = 0; x < W; x += step) {
+        const idx = (y * W + x) * 4;
+        if (imageData[idx] > 128) {
+          samplePoints.push({ x, y });
+        }
+      }
+    }
+
+    for (let i = 0; i < count; i++) {
+      if (samplePoints.length > 0) {
+        const pt = samplePoints[Math.floor(Math.random() * samplePoints.length)];
+        points.push({
+          x: pt.x + (Math.random() - 0.5) * 3,
+          y: pt.y + (Math.random() - 0.5) * 3
+        });
+      }
+    }
+
+    // 墨点
+    for (let i = 0; i < count * 0.05; i++) {
+      points.push({
+        x: Math.random() * W + panX,
+        y: Math.random() * H + panY
+      });
+    }
+
+  } else if (type === 'star') {
+    // 二十八星宿
+    // 满天的星
+    for (let i = 0; i < count * 0.5; i++) {
+      points.push({
+        x: Math.random() * W + panX,
+        y: Math.random() * H * 0.9 + panY
+      });
+    }
+
+    // 二十八宿 - 分四象
+    const constellations = {
+      '东方苍龙': [
+        [0.15, 0.2], [0.2, 0.18], [0.25, 0.22], [0.3, 0.28],
+        [0.35, 0.32], [0.4, 0.35], [0.45, 0.4], [0.5, 0.38]
+      ],
+      '北方玄武': [
+        [0.4, 0.55], [0.45, 0.5], [0.5, 0.55], [0.55, 0.6],
+        [0.6, 0.55], [0.58, 0.5]
+      ],
+      '西方白虎': [
+        [0.65, 0.25], [0.7, 0.3], [0.75, 0.32], [0.8, 0.35],
+        [0.85, 0.4], [0.82, 0.45], [0.78, 0.42]
+      ],
+      '南方朱雀': [
+        [0.2, 0.55], [0.25, 0.6], [0.3, 0.58], [0.35, 0.62],
+        [0.4, 0.65], [0.38, 0.7], [0.32, 0.68]
+      ]
+    };
+
+    for (const [name, stars] of Object.entries(constellations)) {
+      // 描点 - 较亮的星
+      for (const star of stars) {
+        for (let i = 0; i < count * 0.025; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const r = scale * 0.025 * (0.7 + Math.random() * 0.5);
+          points.push({
+            x: star[0] * W + Math.cos(angle) * r * 3 + panX,
+            y: star[1] * H + Math.sin(angle) * r * 3 + panY
+          });
+        }
+      }
+
+      // 连线
+      for (let j = 0; j < stars.length - 1; j++) {
+        const p1 = stars[j];
+        const p2 = stars[j + 1];
+        for (let i = 0; i < count * 0.02; i++) {
+          const t = Math.random();
+          const x = p1[0] * W + (p2[0] - p1[0]) * W * t;
+          const y = p1[1] * H + (p2[1] - p1[1]) * H * t;
+          points.push({
+            x: x + (Math.random() - 0.5) * 3 + panX,
+            y: y + (Math.random() - 0.5) * 3 + panY
+          });
+        }
+      }
+    }
+
+    // 北极星 - 最亮
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * 0.06 * (0.7 + Math.random() * 0.5);
+      points.push({
+        x: W * 0.5 + Math.cos(angle) * r * 3 + panX,
+        y: H * 0.15 + Math.sin(angle) * r * 3 + panY
+      });
+    }
+
+    // 银河
+    for (let i = 0; i < count * 0.15; i++) {
+      const t = Math.random();
+      const x = W * 0.1 + t * W * 0.8;
+      const y = H * 0.4 + Math.sin(t * Math.PI * 2) * H * 0.15;
+      points.push({
+        x: x + (Math.random() - 0.5) * 25 + panX,
+        y: y + (Math.random() - 0.5) * 25 + panY
+      });
+    }
+  }
+
+  return points;
+}
+
+function generateTargetPositions() {
+  const scene = scenes[currentScene];
+  const count = particles.length;
+  const points = generateShapePoints(scene.type, count);
+
+  for (let i = 0; i < particles.length; i++) {
+    if (points.length > 0) {
+      const pt = points[i % points.length];
+      particles[i].tx = pt.x;
+      particles[i].ty = pt.y;
+    }
+  }
+}
+
+// ==================== 绘制函数 ====================
+function drawBackgroundGlow() {
+  const scene = scenes[currentScene];
+  bgCtx.globalAlpha = 1;
+
+  // 渐变背景
+  const gradient = bgCtx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.8);
+  gradient.addColorStop(0, scene.color.glow + '50');
+  gradient.addColorStop(0.4, scene.color.secondary + '40');
+  gradient.addColorStop(0.7, scene.color.glow + '20');
+  gradient.addColorStop(1, '#000000');
+  bgCtx.fillStyle = gradient;
+  bgCtx.fillRect(0, 0, W, H);
+
+  // 动态光晕
+  bgCtx.globalAlpha = 0.06;
+  for (let i = 0; i < 20; i++) {
+    const x = (Math.sin(time * 0.0008 + i) * 0.4 + 0.5) * W;
+    const y = (Math.cos(time * 0.001 + i * 2) * 0.4 + 0.5) * H;
+    const r = 80 + Math.sin(time * 0.002 + i) * 40;
+    const g = bgCtx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, scene.color.accent);
+    g.addColorStop(1, 'transparent');
+    bgCtx.fillStyle = g;
+    bgCtx.beginPath();
+    bgCtx.arc(x, y, r, 0, Math.PI * 2);
+    bgCtx.fill();
+  }
+}
+
+function drawAmbience() {
+  const scene = scenes[currentScene];
+
+  for (const p of ambientParticles) {
+    p.update(scene.color);
+    p.draw(ctx, scene.color);
+  }
+
+  for (const f of floatingElements) {
+    f.update();
+    f.draw(ctx);
+  }
+}
+
+function animate() {
+  time++;
+
+  ctx.clearRect(0, 0, W, H);
+  bgCtx.clearRect(0, 0, W, H);
+
+  drawBackgroundGlow();
+
+  const scene = scenes[currentScene];
+
+  // 原画渐隐逻辑：原画在场景中停留 3秒后被粒子逐渐替代
+  if (isPaintingVisible && paintingRevealProgress < 1) {
+    paintingRevealProgress += 0.003;
+    const painting = document.getElementById('painting');
+    if (paintingRevealProgress > 0.4) {
+      painting.style.opacity = Math.max(0, 0.95 * (1 - (paintingRevealProgress - 0.4) / 0.6));
+    }
+    if (paintingRevealProgress >= 1) {
+      isPaintingVisible = false;
+    }
+  }
+
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update(1, isMouseMoving);
+    particles[i].draw(ctx, scene.color);
+  }
+
+  drawAmbience();
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+
+// ==================== 交互 ====================
+canvas.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  isMouseMoving = true;
+
+  clearTimeout(mouseTimeout);
+  mouseTimeout = setTimeout(() => {
+    isMouseMoving = false;
+  }, 100);
+
+  if (isDragging) {
+    const dx = e.clientX - lastMouseX;
+    const dy = e.clientY - lastMouseY;
+    panX += dx;
+    panY += dy;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    generateTargetPositions();
+  }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+  canvas.style.cursor = 'grabbing';
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+  canvas.style.cursor = 'crosshair';
+});
+
+canvas.addEventListener('mouseleave', () => {
+  isDragging = false;
+  canvas.style.cursor = 'crosshair';
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 0) {
+    mouseX = e.touches[0].clientX;
+    mouseY = e.touches[0].clientY;
+    isMouseMoving = true;
+  }
+});
+
+canvas.addEventListener('click', (e) => {
+  const sceneKeys = Object.keys(scenes);
+  const idx = sceneKeys.indexOf(currentScene);
+  const nextIdx = (idx + 1) % sceneKeys.length;
+  switchScene(sceneKeys[nextIdx]);
+});
+
+canvas.addEventListener('dblclick', (e) => {
+  enterImmersive();
+});
+
+// 滚轮缩放
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.95 : 1.05;
+  zoom = Math.max(0.5, Math.min(2, zoom * delta));
+  generateTargetPositions();
+});
+
+// 场景切换
+document.querySelectorAll('.scene-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const sceneKey = btn.dataset.scene;
+    switchScene(sceneKey);
+  });
+});
+
+function switchScene(sceneKey) {
+  if (currentScene === sceneKey) return;
+  currentScene = sceneKey;
+  paintingRevealProgress = 0;
+  isPaintingVisible = true;
+  paintingIsFading = false;
+
+  document.querySelectorAll('.scene-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.scene === sceneKey);
+  });
+
+  const scene = scenes[sceneKey];
+
+  // 更新原画
+  const painting = document.getElementById('painting');
+  if (scene.painting) {
+    painting.src = scene.painting;
+    painting.classList.remove('fading');
+    painting.classList.add('entering');
+    painting.style.opacity = 0.95;
+  } else {
+    painting.classList.add('fading');
+    paintingIsFading = true;
+    setTimeout(() => {
+      painting.src = '';
+      isPaintingVisible = false;
+      paintingIsFading = false;
+    }, 2000);
+  }
+
+  // 更新信息
+  const infoEl = document.getElementById('sceneInfo');
+  const poemEl = document.getElementById('poemDisplay');
+
+  infoEl.classList.remove('show');
+  poemEl.classList.remove('show');
+
+  setTimeout(() => {
+    document.getElementById('infoLabel').textContent = scene.label;
+    document.getElementById('infoTitle').textContent = scene.title;
+    document.getElementById('infoDesc').textContent = scene.desc;
+    document.getElementById('poemText').textContent = scene.poem;
+    document.getElementById('poemAuthor').textContent = scene.author;
+    infoEl.classList.add('show');
+    poemEl.classList.add('show');
+  }, 600);
+
+  // 重置视角
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+
+  // 重新初始化氛围
+  initAmbience();
+  generateTargetPositions();
+
+  // 散开粒子
+  for (let i = 0; i < particles.length; i++) {
+    const dx = particles[i].tx - particles[i].x;
+    const dy = particles[i].ty - particles[i].y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 50) {
+      particles[i].x = Math.random() * W;
+      particles[i].y = Math.random() * H;
+    }
+  }
+}
+
+function enterImmersive() {
+  isImmersive = !isImmersive;
+  const btn = document.getElementById('enterBtn');
+
+  if (isImmersive) {
+    document.body.classList.add('immersive-mode');
+    btn.textContent = '⟡ 出 世 归 尘 ⟡';
+  } else {
+    document.body.classList.remove('immersive-mode');
+    btn.textContent = '⟡ 观 境 入 画 ⟡';
+  }
+}
+
+document.getElementById('enterBtn').addEventListener('click', enterImmersive);
+
+// ==================== 启动 ====================
+resize();
+
+setTimeout(() => {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('sceneInfo').classList.add('show');
+  document.getElementById('poemDisplay').classList.add('show');
+
+  // 加载首场景原画
+  const painting = document.getElementById('painting');
+  if (scenes[currentScene].painting) {
+    painting.src = scenes[currentScene].painting;
+    painting.classList.add('entering');
+  }
+
+  // 显示统计条 + 报名按钮
+  setTimeout(() => {
+    document.getElementById('statsBar').classList.add('show');
+  }, 2500);
+
+  setTimeout(() => {
+    document.getElementById('registerBtn').classList.add('show');
+  }, 3500);
+}, 1500);
+
+animate();
+
+// ==================== 报名相关逻辑 ====================
+
+// 倒计时
+function updateCountdown() {
+  const target = new Date();
+  target.setDate(target.getDate() + 7);
+  target.setHours(19, 0, 0, 0);
+
+  setInterval(() => {
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) {
+      document.getElementById('countdown').textContent = '活 动 已 开 始';
+      return;
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    document.getElementById('countdown').textContent = `${String(days).padStart(2, '0')} 天 ${String(hours).padStart(2, '0')} 时 ${String(minutes).padStart(2, '0')} 分`;
+  }, 60000);
+}
+updateCountdown();
+
+// 已报名数动态增长
+setInterval(() => {
+  const el = document.getElementById('registeredCount');
+  const current = parseInt(el.textContent);
+  if (Math.random() > 0.5) {
+    el.textContent = current + 1;
+    // 同步减少剩余
+    const remain = document.getElementById('remainingSeats');
+    const r = parseInt(remain.textContent);
+    if (r > 0) remain.textContent = r - 1;
+  }
+}, 8000);
+
+// 性别选择
+document.querySelectorAll('.gender-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.gender-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+  });
+});
+
+// 协议勾选
+let isAgreed = false;
+document.getElementById('agreement').addEventListener('click', () => {
+  isAgreed = !isAgreed;
+  document.getElementById('checkbox').classList.toggle('checked', isAgreed);
+});
+
+// 显示表单
+function openRegisterModal() {
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('formModal').style.display = 'block';
+  document.getElementById('successModal').style.display = 'none';
+  // 默认选中当前场景
+  document.getElementById('sceneSelect').value = currentScene;
+}
+
+function closeRegisterModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+document.getElementById('registerBtn').addEventListener('click', openRegisterModal);
+document.getElementById('navCta').addEventListener('click', openRegisterModal);
+document.getElementById('modalClose').addEventListener('click', closeRegisterModal);
+document.getElementById('successClose').addEventListener('click', closeRegisterModal);
+document.getElementById('successOk').addEventListener('click', closeRegisterModal);
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeRegisterModal();
+});
+
+// 提交表单
+document.getElementById('registerForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  if (!isAgreed) {
+    alert('请先同意《活动须知》与《用户协议》');
+    return;
+  }
+
+  const formData = new FormData(e.target);
+  const data = {};
+  for (const [k, v] of formData.entries()) {
+    if (k === 'scene' || k === 'remark') continue;
+    data[k] = v;
+  }
+  data.scene = formData.get('scene');
+  data.gender = document.querySelector('.gender-option.active').dataset.value;
+  data.remark = formData.get('remark');
+
+  // 模拟提交，生成报名号
+  const code = 'YJ-2026-0619-' + Math.floor(Math.random() * 900 + 100);
+  document.getElementById('successCode').textContent = code;
+
+  // 显示成功弹窗
+  document.getElementById('formModal').style.display = 'none';
+  document.getElementById('successModal').style.display = 'block';
+
+  // 更新已报名数
+  const reg = document.getElementById('registeredCount');
+  reg.textContent = parseInt(reg.textContent) + 1;
+  const remain = document.getElementById('remainingSeats');
+  remain.textContent = Math.max(0, parseInt(remain.textContent) - 1);
+});
+
+// 导航链接
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

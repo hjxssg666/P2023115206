@@ -414,8 +414,8 @@
 <!-- 主画布 - 粒子系统 -->
 <canvas id="canvas"></canvas>
 
-<!-- 原画展示层 (保留元素，用于未来扩展) -->
-<img class="original-painting" id="painting" alt="" style="display:none;">
+<!-- 原画展示层 -->
+<img class="original-painting" id="painting" alt="">
 
 <!-- 氛围效果层 -->
 <div class="ambience-layer" id="ambienceLayer"></div>
@@ -434,9 +434,9 @@
 
 <!-- 场景信息 -->
 <div class="overlay scene-info" id="sceneInfo">
-  <div class="info-label" id="infoLabel">· 古 画 ·</div>
-  <div class="info-title" id="infoTitle">千里江山图</div>
-  <div class="info-desc" id="infoDesc">王希孟以千里江山写尽少年意气，青绿山水间，是整个大宋的风华。</div>
+  <div class="info-label" id="infoLabel">· 山 水 ·</div>
+  <div class="info-title" id="infoTitle">千里江山</div>
+  <div class="info-desc" id="infoDesc">王希孟十八岁画尽天下青绿，山与水、云与雾，在点画之间呼吸。这是大宋的少年心气。</div>
 </div>
 
 <!-- 诗句展示 -->
@@ -446,20 +446,20 @@
 </div>
 
 <!-- 进入场景按钮 -->
-<button class="enter-btn" id="enterBtn">⟡ 享 受 生 活 ⟡</button>
+<button class="enter-btn" id="enterBtn">⟡ 观 境 入 画 ⟡</button>
 
 <!-- 场景选择 -->
 <div class="overlay scene-panel">
-  <button class="scene-btn active" data-scene="mountains">音 乐</button>
-  <button class="scene-btn" data-scene="poetry">影 视</button>
-  <button class="scene-btn" data-scene="opera">咖 啡</button>
-  <button class="scene-btn" data-scene="garden">旅 行</button>
-  <button class="scene-btn" data-scene="calligraphy">游 戏</button>
-  <button class="scene-btn" data-scene="stars">运 动</button>
+  <button class="scene-btn active" data-scene="mountains">山 水</button>
+  <button class="scene-btn" data-scene="poetry">诗 词</button>
+  <button class="scene-btn" data-scene="opera">戏 曲</button>
+  <button class="scene-btn" data-scene="garden">园 林</button>
+  <button class="scene-btn" data-scene="calligraphy">书 法</button>
+  <button class="scene-btn" data-scene="stars">星 象</button>
 </div>
 
 <!-- 交互提示 -->
-<div class="overlay hint">⟡ 滚轮缩放 · 双击沉浸 · 拖拽漫游 · 让粒子为你的生活喝彩 ⟡</div>
+<div class="overlay hint">⟡ 原画渐隐 · 粒子成画 · 滚轮缩放 · 拖拽漫游 · 双击入境 ⟡</div>
 
 <!-- 辅助画布 -->
 <canvas id="shapeCanvas" style="display:none;"></canvas>
@@ -484,6 +484,7 @@ let currentScene = 'mountains';
 let isImmersive = false;
 let isPaintingVisible = true;
 let paintingRevealProgress = 0;
+let paintingIsFading = false;
 let sceneTransitionProgress = 0;
 let isTransitioning = false;
 let time = 0;
@@ -495,68 +496,68 @@ let lastMouseX, lastMouseY;
 // ==================== 场景配置 ====================
 const scenes = {
   mountains: {
-    label: '· 音 乐 ·',
-    title: '音乐时光',
-    desc: '旋律在耳边流转，节拍与心跳共鸣。每一次按下播放键，都是与世界的温柔对话。',
-    poem: '高山流水\n知音难觅',
-    author: '— 古 曲',
-    color: { main: '#c96a7e', accent: '#f4d77e', glow: '#6b2e3d', secondary: '#3a1a25' },
-    type: 'music',
-    painting: null,
+    label: '· 山 水 ·',
+    title: '千里江山',
+    desc: '王希孟十八岁画尽天下青绿，山与水、云与雾，在点画之间呼吸。这是大宋的少年心气。',
+    poem: '咫尺千里\n咫尺万里',
+    author: '— 王希孟《千里江山图》',
+    color: { main: '#4a8f6b', accent: '#f4d77e', glow: '#2d5a4a', secondary: '#1a3a2a' },
+    type: 'shanshui',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg/1280px-Wang_Ximeng._A_Thousand_Li_of_Rivers_and_Mountains._%28Complete%2C_51%2C3x575cm%29._1113._Palace_museum%2C_Beijing.jpg',
     ambience: 'mist'
   },
   poetry: {
-    label: '· 影 视 ·',
-    title: '光影故事',
-    desc: '银幕亮起，故事开启。每一部电影都是一段旅程，每一帧画面都藏着人生的某种真实。',
-    poem: '人生如戏\n戏如人生',
-    author: '— 汤显祖',
-    color: { main: '#5a4c8b', accent: '#e8d8a8', glow: '#2e2a4a', secondary: '#1a1830' },
-    type: 'movie',
-    painting: null,
+    label: '· 诗 词 ·',
+    title: '枫桥夜泊',
+    desc: '姑苏城外，寒山寺中，一缕钟声穿越千年的月光，落在游子的心头。',
+    poem: '月落乌啼霜满天\n江枫渔火对愁眠',
+    author: '— 张继《枫桥夜泊》',
+    color: { main: '#8b7355', accent: '#e8cf8f', glow: '#4a3f2e', secondary: '#2a2520' },
+    type: 'fengqiao',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Fengqiao_Ye_Bo.jpg/800px-Fengqiao_Ye_Bo.jpg',
     ambience: 'fireflies'
   },
   opera: {
-    label: '· 咖 啡 ·',
-    title: '咖啡时光',
-    desc: '一杯咖啡，一段慵懒的下午。香气在杯中升腾，时间在舌尖慢慢流淌。',
-    poem: '偷得浮生\n半日闲',
-    author: '— 李 涉',
-    color: { main: '#8b4513', accent: '#d4af6a', glow: '#4a2810', secondary: '#2a1a08' },
-    type: 'coffee',
-    painting: null,
+    label: '· 戏 曲 ·',
+    title: '牡丹亭 · 惊梦',
+    desc: '良辰美景奈何天，赏心乐事谁家院。杜丽娘的一梦，是中国最动人的浪漫。',
+    poem: '原来姹紫嫣红\n开遍似这般都付与断井颓垣',
+    author: '— 汤显祖《牡丹亭》',
+    color: { main: '#c96a7e', accent: '#f4d77e', glow: '#6b2e3d', secondary: '#3a1a25' },
+    type: 'mudanting',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Mudan_ting_-_The_Peony_Pavilion.jpg/800px-Mudan_ting_-_The_Peony_Pavilion.jpg',
     ambience: 'petals'
   },
   garden: {
-    label: '· 旅 行 ·',
-    title: '环游世界',
-    desc: '背上行囊，去看更远的地方。山海与星空，遇见不同的人和故事，遇见更好的自己。',
-    poem: '世界那么大\n我想去看看',
-    author: '— 顾少强',
-    color: { main: '#4a8f6b', accent: '#f4d77e', glow: '#2d5a4a', secondary: '#1a3a2a' },
-    type: 'travel',
-    painting: null,
+    label: '· 园 林 ·',
+    title: '苏州园林',
+    desc: '亭台楼阁间，一窗一画；曲水流觞处，一步一景。是中国人在人间的天堂。',
+    poem: '虽由人作\n宛自天开',
+    author: '— 计成《园冶》',
+    color: { main: '#6b8e6b', accent: '#d4af6a', glow: '#3a5a3a', secondary: '#1a2a1a' },
+    type: 'yuanlin',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Chen_Hongshou%2C_plant_treatise_album_-_Humble_Administrator%27s_Garden.jpg/800px-Chen_Hongshou%2C_plant_treatise_album_-_Humble_Administrator%27s_Garden.jpg',
     ambience: 'leaves'
   },
   calligraphy: {
-    label: '· 游 戏 ·',
-    title: '游戏乐园',
-    desc: '进入游戏世界，做自己的英雄。从简单的小游戏到史诗级冒险，这里有无限的可能。',
-    poem: '玩物养志\n不负韶华',
-    author: '— 古 语',
-    color: { main: '#5a7ac9', accent: '#e8d8a8', glow: '#2e3f6b', secondary: '#1a1f3a' },
-    type: 'game',
-    painting: null,
+    label: '· 书 法 ·',
+    title: '兰亭集序',
+    desc: '王羲之醉笔写下天下第一行书，曲水流觞间，是魏晋风度，是千年的笔意。',
+    poem: '仰观宇宙之大\n俯察品类之盛',
+    author: '— 王羲之《兰亭集序》',
+    color: { main: '#d4af6a', accent: '#f4d77e', glow: '#4a3f2e', secondary: '#2a2a1a' },
+    type: 'lanting',
+    painting: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Emperor_Xuanzhe%27s_Rendering_of_Lanting_Xu.jpg/800px-Emperor_Xuanzhe%27s_Rendering_of_Lanting_Xu.jpg',
     ambience: 'ink'
   },
   stars: {
-    label: '· 运 动 ·',
-    title: '运动激情',
-    desc: '挥洒汗水，释放能量。每一次奔跑都是对生活的热爱，每一滴汗水都是青春的勋章。',
-    poem: '生命不息\n运动不止',
-    author: '— 奥 义',
-    color: { main: '#d4af6a', accent: '#f4d77e', glow: '#4a3f2e', secondary: '#2a2520' },
-    type: 'sport',
+    label: '· 星 象 ·',
+    title: '二十八星宿',
+    desc: '古人仰观天象，把满天繁星分成二十八宿。紫微垣中，藏着整个宇宙的秩序。',
+    poem: '星垂平野阔\n月涌大江流',
+    author: '— 杜甫《旅夜书怀》',
+    color: { main: '#5a7ac9', accent: '#e8d8a8', glow: '#2e3f6b', secondary: '#1a1f3a' },
+    type: 'star',
     painting: null,
     ambience: 'stars'
   }
@@ -908,511 +909,523 @@ function generateShapePoints(type, count) {
   const cy = H / 2 + panY;
   const scale = Math.min(W, H) * 0.4 * zoom;
 
-  if (type === 'music') {
-    // 音乐 - 音符与声波
-    // 大五线谱
-    const staffLines = 5;
-    const staffWidth = scale * 2.5;
-    const staffLeft = cx - staffWidth / 2;
-    const staffY = cy;
-    const lineSpacing = scale * 0.1;
+  if (type === 'shanshui') {
+    // 山水 - 千里江山
+    // 远山 - 多层青绿山水
+    for (let layer = 0; layer < 6; layer++) {
+      const layerRatio = layer / 6;
+      const layerY = H * 0.25 + layerRatio * H * 0.55;
+      const layerScale = scale * (1.4 - layerRatio * 0.7);
+      const layerHeight = layerScale * (0.5 + (1 - layerRatio) * 0.4);
 
-    for (let l = 0; l < staffLines; l++) {
-      for (let i = 0; i < count * 0.1; i++) {
+      // 主山峰轮廓
+      const peakCount = 5 + layer;
+      for (let p = 0; p < peakCount; p++) {
+        const peakX = (p + 0.5) / peakCount;
+        const peakH = (0.4 + Math.random() * 0.5) * layerHeight;
+        const peakWidth = 0.08 + Math.random() * 0.05;
+
+        for (let i = 0; i < count * 0.04; i++) {
+          const t = Math.random();
+          const x = cx + (peakX - 0.5 + (t - 0.5) * peakWidth) * W * 1.6;
+          // 山峰曲线
+          const dist = Math.abs(t - 0.5) * 2;
+          const y = layerY - peakH * Math.exp(-dist * dist * 4) + (Math.random() - 0.5) * 8;
+          points.push({ x: x + panX, y: y + panY });
+        }
+
+        // 山体填充
+        for (let i = 0; i < count * 0.06; i++) {
+          const t = Math.random();
+          const x = cx + (peakX - 0.5 + (Math.random() - 0.5) * peakWidth * 1.2) * W * 1.6;
+          const dist = Math.abs(t - 0.5) * 2;
+          const y = layerY - peakH * Math.exp(-dist * dist * 4) * (0.5 + Math.random() * 0.5);
+          points.push({ x, y });
+        }
+      }
+
+      // 山脉之间的连绵起伏
+      for (let i = 0; i < count * 0.05; i++) {
+        const t = Math.random();
+        const x = Math.random() * W;
+        const waveY = Math.sin(t * Math.PI * 12 + layer * 1.5) * 15;
+        const peakInfluence = Math.sin(t * Math.PI * 4 + layer) * layerHeight * 0.3;
+        const y = layerY + waveY + peakInfluence;
+        points.push({ x: x + panX, y: y + panY });
+      }
+    }
+
+    // 江水 - 流动的曲线
+    const waterLines = 5;
+    for (let l = 0; l < waterLines; l++) {
+      const waterY = H * 0.7 + l * 4;
+      for (let i = 0; i < count * 0.04; i++) {
+        const t = i / (count * 0.04);
+        const x = t * W;
+        const wave = Math.sin(t * Math.PI * 8 + time * 0.003 + l) * 6;
+        const y = waterY + wave;
+        points.push({ x: x + panX, y: y + panY });
+      }
+    }
+
+    // 远帆 - 江面上的小船
+    for (let i = 0; i < count * 0.01; i++) {
+      const x = Math.random() * W;
+      const y = H * 0.7 + Math.random() * 20;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 留白云气
+    for (let i = 0; i < count * 0.08; i++) {
+      const y = H * 0.3 + Math.random() * H * 0.3;
+      const x = Math.random() * W;
+      points.push({ x: x + panX, y: y + panY + Math.sin(Math.random() * Math.PI) * 20 });
+    }
+
+  } else if (type === 'fengqiao') {
+    // 枫桥夜泊 - 月、桥、船、灯火
+    // 一轮明月
+    const moonX = cx + scale * 0.4;
+    const moonY = cy - scale * 0.3;
+    const moonR = scale * 0.3;
+
+    for (let i = 0; i < count * 0.25; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = moonR * (0.92 + Math.random() * 0.08);
+      points.push({
+        x: moonX + Math.cos(angle) * r + panX,
+        y: moonY + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 月晕
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = moonR * (1.0 + Math.random() * 0.4);
+      points.push({
+        x: moonX + Math.cos(angle) * r + (Math.random() - 0.5) * 10 + panX,
+        y: moonY + Math.sin(angle) * r + (Math.random() - 0.5) * 10 + panY
+      });
+    }
+
+    // 月光倒影 - 江面波光
+    for (let i = 0; i < count * 0.2; i++) {
+      const t = Math.random();
+      const x = moonX - moonR * 1.5 + t * moonR * 3;
+      const y = cy + scale * 0.2 + Math.sin(t * Math.PI * 6 + time * 0.005) * 8 + (Math.random() - 0.5) * 5;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 拱桥 - 枫桥
+    const bridgeX = cx - scale * 0.5;
+    const bridgeY = cy + scale * 0.05;
+    const bridgeR = scale * 0.4;
+
+    // 桥拱
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.PI + Math.random() * Math.PI; // 半圆
+      const r = bridgeR * (0.95 + Math.random() * 0.05);
+      points.push({
+        x: bridgeX + Math.cos(angle) * r + panX,
+        y: bridgeY + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 桥面
+    for (let i = 0; i < count * 0.05; i++) {
+      points.push({
+        x: bridgeX - bridgeR + Math.random() * bridgeR * 2 + panX,
+        y: bridgeY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 桥栏
+    for (let i = 0; i < count * 0.04; i++) {
+      const angle = Math.PI + Math.random() * Math.PI;
+      const r = bridgeR * 1.08;
+      points.push({
+        x: bridgeX + Math.cos(angle) * r + panX,
+        y: bridgeY + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 渔火
+    const firePositions = [
+      { x: bridgeX - bridgeR * 1.5, y: cy + scale * 0.2 },
+      { x: bridgeX + bridgeR * 1.5, y: cy + scale * 0.15 }
+    ];
+    for (const fire of firePositions) {
+      for (let i = 0; i < count * 0.03; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = scale * 0.05 * (0.7 + Math.random() * 0.5);
         points.push({
-          x: staffLeft + Math.random() * staffWidth + panX,
-          y: staffY - lineSpacing * 2 + l * lineSpacing + (Math.random() - 0.5) * 3 + panY
+          x: fire.x + Math.cos(angle) * r + panX,
+          y: fire.y + Math.sin(angle) * r + panY
         });
       }
     }
 
-    // 音符 - 大圆点带尾巴
-    const noteCount = 7;
-    for (let n = 0; n < noteCount; n++) {
-      const noteX = staffLeft + (n + 0.5) * (staffWidth / noteCount);
-      const noteY = staffY + (Math.sin(n * 1.5) - 0.5) * lineSpacing * 2;
-      const noteSize = scale * 0.08 + Math.random() * scale * 0.04;
+    // 远山轮廓
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      const x = t * W;
+      const y = H * 0.45 + Math.sin(t * Math.PI * 6) * 20;
+      points.push({ x: x + panX, y: y + panY });
+    }
 
-      // 圆头
-      for (let i = 0; i < count * 0.04; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = noteSize * (0.7 + Math.random() * 0.3);
-        points.push({
-          x: noteX + Math.cos(angle) * r + panX,
-          y: noteY + Math.sin(angle) * r * 0.8 + panY
-        });
+    // 树影 - 枫树
+    for (let i = 0; i < count * 0.08; i++) {
+      const treeX = bridgeX - bridgeR * 1.8 + Math.random() * scale * 0.3;
+      const treeY = bridgeY - scale * 0.2 + Math.random() * scale * 0.3;
+      points.push({ x: treeX + panX, y: treeY + panY });
+    }
+
+  } else if (type === 'mudanting') {
+    // 牡丹亭 - 牡丹、亭、人物
+    // 牡丹花 - 主角
+    const peonyCX = cx - scale * 0.3;
+    const peonyCY = cy - scale * 0.1;
+    const peonyR = scale * 0.5;
+
+    // 花瓣层 - 多层绽放
+    const petalLayers = 5;
+    for (let layer = 0; layer < petalLayers; layer++) {
+      const layerR = peonyR * (1 - layer * 0.15);
+      const petalsInLayer = 8 + layer * 2;
+
+      for (let p = 0; p < petalsInLayer; p++) {
+        const baseAngle = (p / petalsInLayer) * Math.PI * 2 + layer * 0.2;
+        for (let i = 0; i < count * 0.015; i++) {
+          const t = Math.random();
+          const petalAngle = baseAngle + (t - 0.5) * 0.6;
+          const dist = t * layerR;
+          const widthOffset = (Math.random() - 0.5) * layerR * 0.25 * (1 - t);
+          points.push({
+            x: peonyCX + Math.cos(petalAngle) * dist + Math.cos(petalAngle + Math.PI / 2) * widthOffset + panX,
+            y: peonyCY + Math.sin(petalAngle) * dist + Math.sin(petalAngle + Math.PI / 2) * widthOffset + panY
+          });
+        }
       }
+    }
 
-      // 竖线
+    // 花蕊 - 金色
+    for (let i = 0; i < count * 0.04; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * peonyR * 0.15;
+      points.push({
+        x: peonyCX + Math.cos(angle) * r + panX,
+        y: peonyCY + Math.sin(angle) * r + panY
+      });
+    }
+
+    // 牡丹亭 - 中式亭子
+    const pavilionX = cx + scale * 0.4;
+    const pavilionY = cy;
+    const pavilionW = scale * 0.4;
+    const pavilionH = scale * 0.5;
+
+    // 屋顶 - 飞檐
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      // 上檐
+      const eaveCurve = Math.sin(t * Math.PI) * 0.2;
+      points.push({
+        x: pavilionX - pavilionW * (0.7 + eaveCurve) + Math.random() * pavilionW * (1.4 + eaveCurve * 2) + panX,
+        y: pavilionY - pavilionH * 0.5 + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+    // 屋顶主体
+    for (let i = 0; i < count * 0.05; i++) {
+      const t = Math.random();
+      points.push({
+        x: pavilionX - pavilionW / 2 + t * pavilionW + (Math.random() - 0.5) * 4 + panX,
+        y: pavilionY - pavilionH * 0.4 + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 亭柱
+    for (let col = 0; col < 4; col++) {
+      const colX = pavilionX - pavilionW * 0.3 + col * pavilionW * 0.2;
       for (let i = 0; i < count * 0.02; i++) {
-        const y = noteY - scale * 0.3 - Math.random() * scale * 0.05;
+        const y = pavilionY - pavilionH * 0.3 + Math.random() * pavilionH * 0.6;
         points.push({
-          x: noteX + (Math.random() - 0.5) * 3 + panX,
+          x: colX + (Math.random() - 0.5) * 3 + panX,
           y: y + panY
         });
       }
-
-      // 尾巴旗
-      for (let i = 0; i < count * 0.02; i++) {
-        const flagY = noteY - scale * 0.3 + Math.random() * scale * 0.15;
-        const flagX = noteX + scale * 0.05 + Math.random() * scale * 0.1;
-        points.push({
-          x: flagX + panX,
-          y: flagY + panY
-        });
-      }
     }
 
-    // 声波 - 圆形波纹
-    const waveCount = 3;
-    for (let w = 0; w < waveCount; w++) {
-      const waveR = scale * (0.4 + w * 0.3);
-      for (let i = 0; i < count * 0.05; i++) {
-        const angle = Math.random() * Math.PI * 2 + time * 0.001 * (w + 1);
-        const r = waveR * (0.95 + Math.random() * 0.1);
-        points.push({
-          x: cx + Math.cos(angle) * r + panX,
-          y: cy + Math.sin(angle) * r + panY
-        });
-      }
+    // 栏杆
+    for (let i = 0; i < count * 0.03; i++) {
+      const t = Math.random();
+      points.push({
+        x: pavilionX - pavilionW * 0.35 + t * pavilionW * 0.7 + panX,
+        y: pavilionY + pavilionH * 0.2 + (Math.random() - 0.5) * 3 + panY
+      });
     }
 
-    // 散落的音符粒子
+    // 飘落的花瓣
     for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * (0.8 + Math.random() * 0.6);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + Math.sin(angle) * r * 0.7 + panY
+      });
+    }
+
+  } else if (type === 'yuanlin') {
+    // 苏州园林 - 亭台楼阁、假山、流水、树木
+    // 中央水池
+    const pondR = scale * 0.8;
+    for (let i = 0; i < count * 0.15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = pondR * (0.95 + Math.random() * 0.05);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + scale * 0.2 + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+    // 主亭 - 临水
+    const pavilionX = cx - scale * 0.2;
+    const pavilionY = cy - scale * 0.1;
+    const pavilionW = scale * 0.5;
+    const pavilionH = scale * 0.6;
+
+    // 攒尖顶
+    for (let i = 0; i < count * 0.08; i++) {
+      const t = Math.random();
+      const topY = pavilionY - pavilionH * 0.5;
+      const topR = pavilionW * 0.5 * (1 - t);
+      const angle = Math.random() * Math.PI * 2;
+      points.push({
+        x: pavilionX + Math.cos(angle) * topR + panX,
+        y: topY + t * pavilionH * 0.3 + panY
+      });
+    }
+
+    // 亭柱
+    for (let col = 0; col < 4; col++) {
+      const colX = pavilionX - pavilionW * 0.4 + col * pavilionW * 0.27;
+      for (let i = 0; i < count * 0.02; i++) {
+        points.push({
+          x: colX + (Math.random() - 0.5) * 3 + panX,
+          y: pavilionY - pavilionH * 0.1 + Math.random() * pavilionH * 0.5 + panY
+        });
+      }
+    }
+
+    // 曲桥 - 九曲回廊
+    const bridgePoints = [
+      { x: pavilionX + pavilionW * 0.3, y: pavilionY + pavilionH * 0.3 },
+      { x: pavilionX + pavilionW * 0.6, y: pavilionY + pavilionH * 0.1 },
+      { x: pavilionX + pavilionW * 0.8, y: pavilionY + pavilionH * 0.4 },
+      { x: cx + scale * 0.5, y: cy + scale * 0.1 },
+      { x: cx + scale * 0.7, y: cy }
+    ];
+
+    for (let i = 0; i < count * 0.06; i++) {
+      const t = Math.random();
+      const segIdx = Math.floor(t * (bridgePoints.length - 1));
+      const segT = (t * (bridgePoints.length - 1)) - segIdx;
+      const p1 = bridgePoints[segIdx];
+      const p2 = bridgePoints[segIdx + 1];
+      const segX = p1.x + (p2.x - p1.x) * segT;
+      const segY = p1.y + (p2.y - p1.y) * segT;
+      points.push({
+        x: segX + (Math.random() - 0.5) * 6 + panX,
+        y: segY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 假山 - 左侧
+    for (let i = 0; i < count * 0.12; i++) {
+      const baseX = cx - scale * 0.6;
+      const baseY = cy + scale * 0.2;
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * 0.25 * (0.5 + Math.random() * 0.5);
+      points.push({
+        x: baseX + Math.cos(angle) * r + panX,
+        y: baseY + Math.sin(angle) * r * 0.7 + panY
+      });
+    }
+
+    // 柳树 - 枝条下垂
+    const willowX = cx - scale * 0.7;
+    const willowY = cy - scale * 0.3;
+    for (let i = 0; i < count * 0.1; i++) {
+      const branchT = Math.random();
+      const branchAngle = -Math.PI / 2 + (Math.random() - 0.5) * 0.6;
+      const x = willowX + Math.cos(branchAngle) * scale * 0.3 * branchT;
+      const y = willowY + Math.sin(branchAngle) * scale * 0.3 * branchT + branchT * scale * 0.4;
+      points.push({ x: x + panX, y: y + panY });
+    }
+
+    // 右侧楼阁
+    const towerX = cx + scale * 0.5;
+    const towerY = cy - scale * 0.05;
+    for (let i = 0; i < count * 0.08; i++) {
+      const t = Math.random();
+      const floorH = scale * 0.3;
+      const floorY = towerY - floorH * 0.5 + Math.floor(t * 3) * floorH * 0.4;
+      const floorR = scale * 0.2 * (0.9 + Math.random() * 0.1);
+      const angle = Math.random() * Math.PI * 2;
+      points.push({
+        x: towerX + Math.cos(angle) * floorR + panX,
+        y: floorY + (Math.random() - 0.5) * 4 + panY
+      });
+    }
+
+    // 水中倒影涟漪
+    for (let i = 0; i < count * 0.05; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = pondR * (1.0 + Math.random() * 0.3);
+      points.push({
+        x: cx + Math.cos(angle) * r + panX,
+        y: cy + scale * 0.2 + Math.sin(angle) * r * 0.5 + panY
+      });
+    }
+
+  } else if (type === 'lanting') {
+    // 兰亭集序 - 毛笔书法
+    // 使用离屏canvas绘制书法字
+    shapeCanvas.width = W;
+    shapeCanvas.height = H;
+    shapeCtx.clearRect(0, 0, W, H);
+    shapeCtx.fillStyle = '#000';
+    shapeCtx.fillRect(0, 0, W, H);
+    shapeCtx.fillStyle = '#fff';
+
+    // 主字 - 随机切换
+    const lantingChars = ['兰', '亭', '集', '序', '永', '和', '天', '地', '山', '水', '风', '月'];
+    const charIndex = Math.floor(time * 0.0003) % lantingChars.length;
+
+    // 多字布局
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 3; col++) {
+        const charIdx = (charIndex + row * 3 + col) % lantingChars.length;
+        const char = lantingChars[charIdx];
+
+        const charSize = Math.min(W, H) * (0.18 - row * 0.04);
+        shapeCtx.font = `bold ${charSize}px 'STKaiti', 'KaiTi', 'STSong', serif`;
+        shapeCtx.textAlign = 'center';
+        shapeCtx.textBaseline = 'middle';
+
+        const cx2 = cx + (col - 1) * scale * 0.7;
+        const cy2 = cy + (row - 0.5) * scale * 0.7;
+        shapeCtx.fillText(char, cx2, cy2);
+      }
+    }
+
+    // 提取字形粒子
+    const imageData = shapeCtx.getImageData(0, 0, W, H).data;
+    const samplePoints = [];
+    const step = 3;
+    for (let y = 0; y < H; y += step) {
+      for (let x = 0; x < W; x += step) {
+        const idx = (y * W + x) * 4;
+        if (imageData[idx] > 128) {
+          samplePoints.push({ x, y });
+        }
+      }
+    }
+
+    for (let i = 0; i < count; i++) {
+      if (samplePoints.length > 0) {
+        const pt = samplePoints[Math.floor(Math.random() * samplePoints.length)];
+        points.push({
+          x: pt.x + (Math.random() - 0.5) * 3,
+          y: pt.y + (Math.random() - 0.5) * 3
+        });
+      }
+    }
+
+    // 墨点
+    for (let i = 0; i < count * 0.05; i++) {
       points.push({
         x: Math.random() * W + panX,
         y: Math.random() * H + panY
       });
     }
 
-  } else if (type === 'movie') {
-    // 影视 - 电影胶片
-    // 胶片主体
-    const filmWidth = scale * 2.2;
-    const filmHeight = scale * 1.4;
-    const filmLeft = cx - filmWidth / 2;
-    const filmTop = cy - filmHeight / 2;
-
-    // 胶片框
-    for (let i = 0; i < count * 0.05; i++) {
-      // 上边缘
-      points.push({
-        x: filmLeft + Math.random() * filmWidth + panX,
-        y: filmTop + (Math.random() - 0.5) * 3 + panY
-      });
-      // 下边缘
-      points.push({
-        x: filmLeft + Math.random() * filmWidth + panX,
-        y: filmTop + filmHeight + (Math.random() - 0.5) * 3 + panY
-      });
-      // 左边缘
-      points.push({
-        x: filmLeft + (Math.random() - 0.5) * 3 + panX,
-        y: filmTop + Math.random() * filmHeight + panY
-      });
-      // 右边缘
-      points.push({
-        x: filmLeft + filmWidth + (Math.random() - 0.5) * 3 + panX,
-        y: filmTop + Math.random() * filmHeight + panY
-      });
-    }
-
-    // 上下排齿孔
-    const holeCount = 8;
-    for (let h = 0; h < holeCount; h++) {
-      const holeX = filmLeft + (h + 0.5) * (filmWidth / holeCount);
-      // 上排
-      for (let i = 0; i < count * 0.01; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = scale * 0.04 * (0.7 + Math.random() * 0.3);
-        points.push({
-          x: holeX + Math.cos(angle) * r + panX,
-          y: filmTop + scale * 0.1 + Math.sin(angle) * r * 0.6 + panY
-        });
-      }
-      // 下排
-      for (let i = 0; i < count * 0.01; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = scale * 0.04 * (0.7 + Math.random() * 0.3);
-        points.push({
-          x: holeX + Math.cos(angle) * r + panX,
-          y: filmTop + filmHeight - scale * 0.1 + Math.sin(angle) * r * 0.6 + panY
-        });
-      }
-    }
-
-    // 中间画面 - 中心人物剪影
-    const pictureLeft = filmLeft + scale * 0.15;
-    const pictureTop = filmTop + scale * 0.25;
-    const pictureWidth = filmWidth - scale * 0.3;
-    const pictureHeight = filmHeight - scale * 0.5;
-
-    // 背景画面
-    for (let i = 0; i < count * 0.2; i++) {
-      points.push({
-        x: pictureLeft + Math.random() * pictureWidth + panX,
-        y: pictureTop + Math.random() * pictureHeight + panY
-      });
-    }
-
-    // 中心人物剪影
-    const figureCX = cx;
-    const figureCY = cy;
-    // 头
-    for (let i = 0; i < count * 0.04; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = scale * 0.12 * (0.7 + Math.random() * 0.3);
-      points.push({
-        x: figureCX + Math.cos(angle) * r + panX,
-        y: figureCY - scale * 0.25 + Math.sin(angle) * r * 0.9 + panY
-      });
-    }
-    // 身体
-    for (let i = 0; i < count * 0.1; i++) {
-      const t = Math.random();
-      points.push({
-        x: figureCX + (Math.random() - 0.5) * scale * 0.4 + panX,
-        y: figureCY - scale * 0.1 + t * scale * 0.5 + panY
-      });
-    }
-
-    // 播放按钮三角形
-    const playSize = scale * 0.15;
-    for (let i = 0; i < count * 0.03; i++) {
-      const t = Math.random();
-      const s = Math.random();
-      if (s + t * 0.5 < 0.5) {
-        points.push({
-          x: cx + playSize * (t - 0.5) + panX,
-          y: cy + playSize * (Math.random() - 0.5) + panY
-        });
-      }
-    }
-
-    // 周围浮动的小星
-    for (let i = 0; i < count * 0.1; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = scale * (1.2 + Math.random() * 0.3);
-      points.push({
-        x: cx + Math.cos(angle) * r + panX,
-        y: cy + Math.sin(angle) * r + panY
-      });
-    }
-
-  } else if (type === 'coffee') {
-    // 咖啡 - 杯与热气
-    // 咖啡杯主体
-    const cupW = scale * 0.7;
-    const cupH = scale * 0.5;
-    const cupTop = cy - scale * 0.2;
-    const cupBottom = cy + cupH;
-    const cupLeft = cx - cupW / 2;
-    const cupRight = cx + cupW / 2;
-
-    // 杯身
-    for (let i = 0; i < count * 0.15; i++) {
-      // 杯壁 - 梯形
-      const t = Math.random();
-      const cupHalfWidth = cupW / 2 * (1 - t * 0.1);
-      const side = Math.random() > 0.5 ? 1 : -1;
-      const x = cx + side * cupHalfWidth * (0.9 + Math.random() * 0.2);
-      const y = cupTop + t * cupH + (Math.random() - 0.5) * 4;
-      points.push({ x, y });
-    }
-
-    // 杯底
-    for (let i = 0; i < count * 0.04; i++) {
-      points.push({
-        x: cupLeft + scale * 0.1 + Math.random() * (cupW - scale * 0.2) + panX,
-        y: cupBottom + (Math.random() - 0.5) * 5 + panY
-      });
-    }
-
-    // 咖啡液面
-    for (let i = 0; i < count * 0.08; i++) {
-      const ellipseT = Math.random() * Math.PI * 2;
-      const ellipseR = cupW / 2 * 0.95;
-      points.push({
-        x: cx + Math.cos(ellipseT) * ellipseR + panX,
-        y: cupTop + Math.sin(ellipseT) * ellipseR * 0.3 + panY
-      });
-    }
-
-    // 把手
-    for (let i = 0; i < count * 0.04; i++) {
-      const angle = Math.random() * Math.PI;
-      const r = scale * 0.15 * (0.8 + Math.random() * 0.2);
-      points.push({
-        x: cupRight + Math.cos(angle) * r * 0.5 + panX,
-        y: cy + Math.sin(angle) * r + panY
-      });
-    }
-
-    // 杯盖
-    for (let i = 0; i < count * 0.03; i++) {
-      const lidT = Math.random() * Math.PI * 2;
-      const lidR = cupW / 2 * 1.1;
-      points.push({
-        x: cx + Math.cos(lidT) * lidR + panX,
-        y: cupTop - scale * 0.04 + Math.sin(lidT) * lidR * 0.2 + panY
-      });
-    }
-
-    // 热气 - 飘动的曲线
-    const steamCount = 3;
-    for (let s = 0; s < steamCount; s++) {
-      const steamOffset = (s - 1) * scale * 0.15;
-      for (let i = 0; i < count * 0.05; i++) {
-        const t = Math.random();
-        const waveX = Math.sin(t * Math.PI * 2 - time * 0.005 + s) * scale * 0.08;
-        const x = cx + steamOffset + waveX;
-        const y = cupTop - scale * 0.1 - t * scale * 0.6;
-        points.push({ x: x + panX, y: y + panY });
-      }
-    }
-
-    // 周围小咖啡豆
-    for (let i = 0; i < count * 0.08; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = scale * (1.0 + Math.random() * 0.3);
-      const beanSize = scale * 0.05;
-      for (let j = 0; j < 3; j++) {
-        const a = Math.random() * Math.PI * 2;
-        points.push({
-          x: cx + Math.cos(angle) * r + Math.cos(a) * beanSize + panX,
-          y: cy + Math.sin(angle) * r + Math.sin(a) * beanSize + panY
-        });
-      }
-    }
-
-  } else if (type === 'travel') {
-    // 旅行 - 地球与飞机
-    // 地球
-    const earthR = scale * 0.6;
-    for (let i = 0; i < count * 0.25; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const lat = (Math.random() - 0.5) * Math.PI;
-      const r = earthR * (0.95 + Math.random() * 0.05);
-      points.push({
-        x: cx + Math.cos(angle) * r * Math.cos(lat) + panX,
-        y: cy + Math.sin(lat) * r * 0.5 + panY
-      });
-    }
-
-    // 大陆 - 不规则斑块
-    for (let i = 0; i < count * 0.15; i++) {
-      const baseAngle = Math.random() * Math.PI * 2;
-      const baseR = earthR * (0.5 + Math.random() * 0.4);
-      for (let j = 0; j < 5; j++) {
-        const a = baseAngle + (Math.random() - 0.5) * 0.4;
-        const r = baseR + Math.random() * earthR * 0.2;
-        points.push({
-          x: cx + Math.cos(a) * r + panX,
-          y: cy + Math.sin(a) * r * 0.5 + panY
-        });
-      }
-    }
-
-    // 经线
-    for (let lon = 0; lon < 8; lon++) {
-      const lonAngle = (lon / 8) * Math.PI * 2;
-      for (let i = 0; i < count * 0.02; i++) {
-        const lat = (i / (count * 0.02) - 0.5) * Math.PI;
-        points.push({
-          x: cx + Math.cos(lonAngle) * earthR * Math.cos(lat) * (0.95 + Math.random() * 0.05) + panX,
-          y: cy + Math.sin(lat) * earthR * 0.5 + panY
-        });
-      }
-    }
-
-    // 飞机飞行轨迹
-    for (let i = 0; i < count * 0.08; i++) {
-      const t = Math.random();
-      const angle = t * Math.PI * 2 + time * 0.002;
-      const r = scale * (0.7 + Math.sin(t * Math.PI * 2) * 0.15);
-      points.push({
-        x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 8 + panX,
-        y: cy + Math.sin(angle) * r * 0.5 + (Math.random() - 0.5) * 8 + panY
-      });
-    }
-
-    // 飞机标记点
-    for (let i = 0; i < count * 0.02; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = scale * (0.7 + Math.random() * 0.3);
-      points.push({
-        x: cx + Math.cos(angle) * r + panX,
-        y: cy + Math.sin(angle) * r * 0.5 + panY
-      });
-    }
-
-    // 围绕的小星星
-    for (let i = 0; i < count * 0.15; i++) {
+  } else if (type === 'star') {
+    // 二十八星宿
+    // 满天的星
+    for (let i = 0; i < count * 0.5; i++) {
       points.push({
         x: Math.random() * W + panX,
-        y: Math.random() * H * 0.8 + panY
+        y: Math.random() * H * 0.9 + panY
       });
     }
 
-  } else if (type === 'game') {
-    // 游戏 - 手柄与像素
-    // 手柄主体
-    const gamepadW = scale * 1.4;
-    const gamepadH = scale * 0.7;
-    const gamepadLeft = cx - gamepadW / 2;
-    const gamepadTop = cy - gamepadH / 2;
+    // 二十八宿 - 分四象
+    const constellations = {
+      '东方苍龙': [
+        [0.15, 0.2], [0.2, 0.18], [0.25, 0.22], [0.3, 0.28],
+        [0.35, 0.32], [0.4, 0.35], [0.45, 0.4], [0.5, 0.38]
+      ],
+      '北方玄武': [
+        [0.4, 0.55], [0.45, 0.5], [0.5, 0.55], [0.55, 0.6],
+        [0.6, 0.55], [0.58, 0.5]
+      ],
+      '西方白虎': [
+        [0.65, 0.25], [0.7, 0.3], [0.75, 0.32], [0.8, 0.35],
+        [0.85, 0.4], [0.82, 0.45], [0.78, 0.42]
+      ],
+      '南方朱雀': [
+        [0.2, 0.55], [0.25, 0.6], [0.3, 0.58], [0.35, 0.62],
+        [0.4, 0.65], [0.38, 0.7], [0.32, 0.68]
+      ]
+    };
 
-    // 手柄外轮廓
-    for (let i = 0; i < count * 0.2; i++) {
-      const t = Math.random() * Math.PI * 2;
-      const isLeft = Math.cos(t) < 0;
-      const baseR = (isLeft ? gamepadW * 0.25 : gamepadW * 0.3);
-      const r = baseR * (0.8 + Math.random() * 0.2);
-      points.push({
-        x: (isLeft ? gamepadLeft : gamepadLeft + gamepadW) + Math.cos(t) * r + panX,
-        y: cy + Math.sin(t) * r * 0.7 + panY
-      });
-    }
-
-    // 顶部连接
-    for (let i = 0; i < count * 0.05; i++) {
-      points.push({
-        x: gamepadLeft + gamepadW * 0.2 + Math.random() * gamepadW * 0.6 + panX,
-        y: gamepadTop + (Math.random() - 0.5) * 4 + panY
-      });
-    }
-
-    // 方向键 - 十字
-    for (let i = 0; i < count * 0.05; i++) {
-      const dir = Math.floor(Math.random() * 4);
-      const keyR = scale * 0.12;
-      if (dir === 0) { points.push({ x: gamepadLeft + keyR + (Math.random() - 0.5) * 4 + panX, y: cy + (Math.random() - 0.5) * 4 + panY }); }
-      else if (dir === 1) { points.push({ x: gamepadLeft + (Math.random() - 0.5) * 4 + panX, y: cy - keyR + (Math.random() - 0.5) * 4 + panY }); }
-      else if (dir === 2) { points.push({ x: gamepadLeft + (Math.random() - 0.5) * 4 + panX, y: cy + keyR + (Math.random() - 0.5) * 4 + panY }); }
-      else { points.push({ x: gamepadLeft + keyR + (Math.random() - 0.5) * 4 + panX, y: cy + keyR + (Math.random() - 0.5) * 4 + panY }); }
-    }
-
-    // 按钮 - 4个圆形
-    const buttons = [
-      { x: gamepadLeft + gamepadW * 0.75, y: cy - scale * 0.1 },
-      { x: gamepadLeft + gamepadW * 0.8, y: cy + scale * 0.05 },
-      { x: gamepadLeft + gamepadW * 0.7, y: cy + scale * 0.05 },
-      { x: gamepadLeft + gamepadW * 0.75, y: cy + scale * 0.15 }
-    ];
-    for (const btn of buttons) {
-      for (let i = 0; i < count * 0.02; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = scale * 0.06 * (0.7 + Math.random() * 0.3);
-        points.push({
-          x: btn.x + Math.cos(angle) * r + panX,
-          y: btn.y + Math.sin(angle) * r + panY
-        });
+    for (const [name, stars] of Object.entries(constellations)) {
+      // 描点 - 较亮的星
+      for (const star of stars) {
+        for (let i = 0; i < count * 0.025; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const r = scale * 0.025 * (0.7 + Math.random() * 0.5);
+          points.push({
+            x: star[0] * W + Math.cos(angle) * r * 3 + panX,
+            y: star[1] * H + Math.sin(angle) * r * 3 + panY
+          });
+        }
       }
-    }
 
-    // 摇杆
-    const stickPositions = [
-      { x: gamepadLeft + gamepadW * 0.25, y: cy + scale * 0.05 },
-      { x: gamepadLeft + gamepadW * 0.55, y: cy - scale * 0.1 }
-    ];
-    for (const stick of stickPositions) {
-      for (let i = 0; i < count * 0.03; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = scale * 0.08 * (0.7 + Math.random() * 0.3);
-        points.push({
-          x: stick.x + Math.cos(angle) * r + panX,
-          y: stick.y + Math.sin(angle) * r + panY
-        });
-      }
-    }
-
-    // 像素粒子
-    for (let i = 0; i < count * 0.15; i++) {
-      const px = Math.floor(Math.random() * 20);
-      const py = Math.floor(Math.random() * 12);
-      points.push({
-        x: Math.random() * W * 0.9 + W * 0.05 + panX,
-        y: H * 0.85 + py * 3 + panY
-      });
-    }
-
-    // 周围浮动粒子
-    for (let i = 0; i < count * 0.1; i++) {
-      points.push({
-        x: Math.random() * W + panX,
-        y: Math.random() * H * 0.4 + panY
-      });
-    }
-
-  } else if (type === 'sport') {
-    // 运动 - 篮球与球网
-    // 篮球主体
-    const ballR = scale * 0.4;
-    for (let i = 0; i < count * 0.25; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = ballR * (0.95 + Math.random() * 0.05);
-      points.push({
-        x: cx + Math.cos(angle) * r + panX,
-        y: cy + Math.sin(angle) * r + panY
-      });
-    }
-
-    // 篮球纹路
-    for (let i = 0; i < count * 0.1; i++) {
-      // 水平纹路
-      points.push({
-        x: cx + (Math.random() - 0.5) * ballR * 2 * 0.95 + panX,
-        y: cy + (Math.random() - 0.5) * 4 + panY
-      });
-      // 垂直纹路
-      points.push({
-        x: cx + (Math.random() - 0.5) * 4 + panX,
-        y: cy + (Math.random() - 0.5) * ballR * 2 * 0.95 + panY
-      });
-      // 弧线
-      const t = Math.random();
-      const curveAngle = Math.PI * 0.5 + t * Math.PI;
-      points.push({
-        x: cx + Math.cos(curveAngle) * ballR * 0.7 * (0.8 + Math.random() * 0.2) + panX,
-        y: cy + Math.sin(curveAngle) * ballR * 0.4 + panY
-      });
-    }
-
-    // 运动轨迹 - 抛物线
-    for (let i = 0; i < count * 0.15; i++) {
-      const t = Math.random();
-      const x = cx + (t - 0.5) * scale * 1.5;
-      const y = cy - t * scale * 0.8 + scale * 0.4 + Math.sin(t * Math.PI) * scale * 0.3;
-      points.push({
-        x: x + (Math.random() - 0.5) * 8 + panX,
-        y: y + (Math.random() - 0.5) * 8 + panY
-      });
-    }
-
-    // 球网 - 网格点
-    const netW = scale * 1.2;
-    const netLeft = cx - netW / 2;
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 12; col++) {
-        const nx = netLeft + col * (netW / 12);
-        const ny = cy + scale * 0.4 + row * (scale * 0.08);
-        if (Math.random() > 0.4) {
-          for (let i = 0; i < count * 0.005; i++) {
-            points.push({
-              x: nx + (Math.random() - 0.5) * 4 + panX,
-              y: ny + (Math.random() - 0.5) * 4 + panY
-            });
-          }
+      // 连线
+      for (let j = 0; j < stars.length - 1; j++) {
+        const p1 = stars[j];
+        const p2 = stars[j + 1];
+        for (let i = 0; i < count * 0.02; i++) {
+          const t = Math.random();
+          const x = p1[0] * W + (p2[0] - p1[0]) * W * t;
+          const y = p1[1] * H + (p2[1] - p1[1]) * H * t;
+          points.push({
+            x: x + (Math.random() - 0.5) * 3 + panX,
+            y: y + (Math.random() - 0.5) * 3 + panY
+          });
         }
       }
     }
 
-    // 速度线
-    for (let i = 0; i < count * 0.1; i++) {
-      const y = H * 0.2 + Math.random() * H * 0.6;
+    // 北极星 - 最亮
+    for (let i = 0; i < count * 0.08; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = scale * 0.06 * (0.7 + Math.random() * 0.5);
       points.push({
-        x: Math.random() * W + panX,
-        y: y + panY
+        x: W * 0.5 + Math.cos(angle) * r * 3 + panX,
+        y: H * 0.15 + Math.sin(angle) * r * 3 + panY
+      });
+    }
+
+    // 银河
+    for (let i = 0; i < count * 0.15; i++) {
+      const t = Math.random();
+      const x = W * 0.1 + t * W * 0.8;
+      const y = H * 0.4 + Math.sin(t * Math.PI * 2) * H * 0.15;
+      points.push({
+        x: x + (Math.random() - 0.5) * 25 + panX,
+        y: y + (Math.random() - 0.5) * 25 + panY
       });
     }
   }
@@ -1487,6 +1500,18 @@ function animate() {
   drawBackgroundGlow();
 
   const scene = scenes[currentScene];
+
+  // 原画渐隐逻辑：原画在场景中停留 3秒后被粒子逐渐替代
+  if (isPaintingVisible && paintingRevealProgress < 1) {
+    paintingRevealProgress += 0.003;
+    const painting = document.getElementById('painting');
+    if (paintingRevealProgress > 0.4) {
+      painting.style.opacity = Math.max(0, 0.95 * (1 - (paintingRevealProgress - 0.4) / 0.6));
+    }
+    if (paintingRevealProgress >= 1) {
+      isPaintingVisible = false;
+    }
+  }
 
   for (let i = 0; i < particles.length; i++) {
     particles[i].update(1, isMouseMoving);
@@ -1577,12 +1602,32 @@ document.querySelectorAll('.scene-btn').forEach(btn => {
 function switchScene(sceneKey) {
   if (currentScene === sceneKey) return;
   currentScene = sceneKey;
+  paintingRevealProgress = 0;
+  isPaintingVisible = true;
+  paintingIsFading = false;
 
   document.querySelectorAll('.scene-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.scene === sceneKey);
   });
 
   const scene = scenes[sceneKey];
+
+  // 更新原画
+  const painting = document.getElementById('painting');
+  if (scene.painting) {
+    painting.src = scene.painting;
+    painting.classList.remove('fading');
+    painting.classList.add('entering');
+    painting.style.opacity = 0.95;
+  } else {
+    painting.classList.add('fading');
+    paintingIsFading = true;
+    setTimeout(() => {
+      painting.src = '';
+      isPaintingVisible = false;
+      paintingIsFading = false;
+    }, 2000);
+  }
 
   // 更新信息
   const infoEl = document.getElementById('sceneInfo');
@@ -1628,10 +1673,10 @@ function enterImmersive() {
 
   if (isImmersive) {
     document.body.classList.add('immersive-mode');
-    btn.textContent = '⟡ 退 出 沉 浸 ⟡';
+    btn.textContent = '⟡ 出 世 归 尘 ⟡';
   } else {
     document.body.classList.remove('immersive-mode');
-    btn.textContent = '⟡ 享 受 生 活 ⟡';
+    btn.textContent = '⟡ 观 境 入 画 ⟡';
   }
 }
 
@@ -1644,6 +1689,13 @@ setTimeout(() => {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('sceneInfo').classList.add('show');
   document.getElementById('poemDisplay').classList.add('show');
+
+  // 加载首场景原画
+  const painting = document.getElementById('painting');
+  if (scenes[currentScene].painting) {
+    painting.src = scenes[currentScene].painting;
+    painting.classList.add('entering');
+  }
 }, 1500);
 
 animate();

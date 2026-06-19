@@ -387,8 +387,477 @@
     opacity: 1;
   }
 
+  /* 顶部导航 */
+  .top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 50px;
+    pointer-events: none;
+  }
+
+  .nav-brand {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 20px;
+    color: #d4af6a;
+    letter-spacing: 4px;
+    pointer-events: auto;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #8a7a5c;
+    text-decoration: none;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .nav-link:hover { color: #f4d77e; }
+
+  .nav-link.active { color: #f4d77e; }
+
+  .nav-cta {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    color: #0a0705;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    border: none;
+    padding: 8px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(212, 175, 106, 0.4);
+  }
+
+  /* 报名按钮 */
+  .register-btn {
+    position: fixed;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%) translateX(60px);
+    z-index: 15;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 14px;
+    color: #0a0705;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 4px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(212, 175, 106, 0.3);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .register-btn.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+  }
+
+  .register-btn:hover {
+    transform: translateY(-50%) translateX(0) scale(1.05);
+    box-shadow: 0 8px 30px rgba(212, 175, 106, 0.6);
+  }
+
+  /* 剩余名额 + 倒计时 */
+  .stats-bar {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 50px;
+    padding: 14px 30px;
+    background: rgba(15, 10, 5, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 106, 0.2);
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .stats-bar.show { opacity: 1; }
+
+  .stat-item {
+    text-align: center;
+    color: #d4af6a;
+  }
+
+  .stat-label {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 10px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 18px;
+    color: #f4d77e;
+    letter-spacing: 2px;
+  }
+
+  .stat-value.flash {
+    animation: flashValue 1.2s ease-in-out infinite;
+  }
+
+  @keyframes flashValue {
+    0%, 100% { color: #f4d77e; }
+    50% { color: #ff7a7a; }
+  }
+
+  /* 报名表单弹窗 */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(5, 3, 2, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    width: 90%;
+    max-width: 520px;
+    background: linear-gradient(180deg, #1a1208 0%, #0a0705 100%);
+    border: 1px solid rgba(212, 175, 106, 0.4);
+    border-radius: 8px;
+    padding: 50px 50px 40px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(212, 175, 106, 0.15);
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-overlay.show .modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal::before, .modal::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d4af6a;
+  }
+
+  .modal::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .modal::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    color: #8a7a5c;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    color: #f4d77e;
+    border-color: #f4d77e;
+    transform: rotate(90deg);
+  }
+
+  .modal-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 32px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    letter-spacing: 8px;
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    text-align: center;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 12px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 11px;
+    color: #8a7a5c;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(15, 10, 5, 0.6);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 4px;
+    color: #f4d77e;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: #d4af6a;
+    background: rgba(15, 10, 5, 0.8);
+    box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.1);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .form-select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4af6a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  .form-select option {
+    background: #0a0705;
+    color: #f4d77e;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 14px;
+  }
+
+  .form-row .form-group { flex: 1; }
+
+  .form-gender {
+    display: flex;
+    gap: 12px;
+  }
+
+  .gender-option {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    background: rgba(15, 10, 5, 0.6);
+    border: 1px solid rgba(212, 175, 106, 0.25);
+    border-radius: 4px;
+    color: #8a7a5c;
+    cursor: pointer;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    transition: all 0.3s ease;
+  }
+
+  .gender-option.active {
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    color: #0a0705;
+    border-color: #d4af6a;
+  }
+
+  .form-submit {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 24px;
+    background: linear-gradient(180deg, #f4d77e, #d4af6a);
+    color: #0a0705;
+    border: none;
+    border-radius: 999px;
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 15px;
+    letter-spacing: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-submit::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    border-radius: 50%;
+  }
+
+  .form-submit:hover::before { width: 300px; height: 300px; }
+
+  .form-submit:hover {
+    box-shadow: 0 8px 30px rgba(212, 175, 106, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .form-agreement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 11px;
+    color: #8a7a5c;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  .form-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1px solid rgba(212, 175, 106, 0.4);
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .form-checkbox.checked {
+    background: #d4af6a;
+  }
+
+  .form-checkbox.checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0a0705;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  /* 报名成功提示 */
+  .success-modal {
+    text-align: center;
+    padding: 30px 0 10px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border: 2px solid #d4af6a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .success-icon::before {
+    content: '';
+    width: 26px;
+    height: 14px;
+    border-left: 2px solid #f4d77e;
+    border-bottom: 2px solid #f4d77e;
+    transform: rotate(-45deg) translate(4px, -4px);
+  }
+
+  .success-title {
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 28px;
+    color: #f4d77e;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+  }
+
+  .success-msg {
+    font-size: 13px;
+    color: #8a7a5c;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .success-code {
+    display: inline-block;
+    padding: 10px 24px;
+    background: rgba(212, 175, 106, 0.1);
+    border: 1px solid rgba(212, 175, 106, 0.3);
+    border-radius: 4px;
+    color: #f4d77e;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    letter-spacing: 4px;
+    margin-bottom: 24px;
+  }
+
   /* 响应式 */
   @media (max-width: 768px) {
+    .top-nav { padding: 14px 20px; }
+    .nav-brand { font-size: 16px; letter-spacing: 2px; }
+    .nav-links { display: none; }
+    .nav-cta { padding: 6px 16px; font-size: 12px; }
+    .stats-bar { top: 70px; padding: 10px 20px; gap: 24px; }
+    .stat-label { font-size: 9px; }
+    .stat-value { font-size: 14px; }
+    .register-btn { right: 20px; padding: 10px 18px; font-size: 12px; }
+    .modal { padding: 40px 30px 30px; }
+    .modal-title { font-size: 24px; letter-spacing: 4px; }
+    .form-row { flex-direction: column; gap: 0; }
+    .form-gender { gap: 8px; }
     .main-title { font-size: 32px; letter-spacing: 6px; }
     .sub-title { font-size: 11px; letter-spacing: 3px; }
     .scene-panel { padding: 6px 10px; gap: 3px; bottom: 30px; }
@@ -426,6 +895,35 @@
 <div class="corner bl"></div>
 <div class="corner br"></div>
 
+<!-- 顶部导航 -->
+<nav class="top-nav">
+  <div class="nav-brand">国 风 雅 集</div>
+  <div class="nav-links">
+    <a class="nav-link active" data-section="home">首 页</a>
+    <a class="nav-link" data-section="scene">场 景</a>
+    <a class="nav-link" data-section="guide">导 览</a>
+    <a class="nav-link" data-section="about">关 于</a>
+  </div>
+  <button class="nav-cta" id="navCta">立 即 报 名</button>
+</nav>
+
+<!-- 统计条：剩余名额 + 倒计时 -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-item">
+    <div class="stat-label">剩 余 名 额</div>
+    <div class="stat-value flash" id="remainingSeats">23</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">已 报 名</div>
+    <div class="stat-value" id="registeredCount">277</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">距 离 开 幕</div>
+    <div class="stat-value" id="countdown">07 天 23 时</div>
+  </div>
+</div>
+
+<!-- 主场景内容 -->
 <!-- 标题 -->
 <div class="overlay title-section">
   <div class="main-title">星河粒子</div>
@@ -460,6 +958,83 @@
 
 <!-- 交互提示 -->
 <div class="overlay hint">⟡ 原画渐隐 · 粒子成画 · 滚轮缩放 · 拖拽漫游 · 双击入境 ⟡</div>
+
+<!-- 报名按钮 -->
+<button class="register-btn" id="registerBtn">立 即 报 名</button>
+
+<!-- 报名表单弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="formModal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <h2 class="modal-title">雅 集 报 名</h2>
+    <p class="modal-subtitle">— 星河粒子 · 中国意境沉浸展 —</p>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label class="form-label">姓 名</label>
+        <input class="form-input" type="text" name="name" placeholder="请输入您的姓名" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">手 机 号</label>
+          <input class="form-input" type="tel" name="phone" placeholder="11位手机号" maxlength="11" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">年 龄</label>
+          <input class="form-input" type="number" name="age" placeholder="可选" min="1" max="120">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">性 别</label>
+        <div class="form-gender">
+          <div class="gender-option active" data-value="male">男 子</div>
+          <div class="gender-option" data-value="female">女 子</div>
+          <div class="gender-option" data-value="other">其 他</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">偏 好 场 景</label>
+        <select class="form-select" name="scene" id="sceneSelect">
+          <option value="">— 任意场景皆可 —</option>
+          <option value="mountains">山水 · 千里江山</option>
+          <option value="poetry">诗词 · 枫桥夜泊</option>
+          <option value="opera">戏曲 · 牡丹亭</option>
+          <option value="garden">园林 · 苏州园林</option>
+          <option value="calligraphy">书法 · 兰亭集序</option>
+          <option value="stars">星象 · 二十八星宿</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">备 注</label>
+        <textarea class="form-textarea" name="remark" placeholder="如有特别需求或想说的话，可在此留言（选填）"></textarea>
+      </div>
+
+      <div class="form-agreement" id="agreement">
+        <span class="form-checkbox" id="checkbox"></span>
+        <span>我已阅读并同意《活动须知》与《用户协议》</span>
+      </div>
+
+      <button type="submit" class="form-submit">提 交 报 名</button>
+    </form>
+  </div>
+
+  <!-- 报名成功弹窗 -->
+  <div class="modal" id="successModal" style="display:none;">
+    <button class="modal-close" id="successClose">✕</button>
+    <div class="success-modal">
+      <div class="success-icon"></div>
+      <h2 class="success-title">报 名 成 功</h2>
+      <p class="success-msg">感谢您对国风雅集的关注<br>我们将以短信形式发送活动详情</p>
+      <div class="success-code" id="successCode">YJ-2026-0619-886</div>
+      <br>
+      <button class="form-submit" id="successOk">继 续 漫 游</button>
+    </div>
+  </div>
+</div>
 
 <!-- 辅助画布 -->
 <canvas id="shapeCanvas" style="display:none;"></canvas>
@@ -1696,9 +2271,134 @@ setTimeout(() => {
     painting.src = scenes[currentScene].painting;
     painting.classList.add('entering');
   }
+
+  // 显示统计条 + 报名按钮
+  setTimeout(() => {
+    document.getElementById('statsBar').classList.add('show');
+  }, 2500);
+
+  setTimeout(() => {
+    document.getElementById('registerBtn').classList.add('show');
+  }, 3500);
 }, 1500);
 
 animate();
+
+// ==================== 报名相关逻辑 ====================
+
+// 倒计时
+function updateCountdown() {
+  const target = new Date();
+  target.setDate(target.getDate() + 7);
+  target.setHours(19, 0, 0, 0);
+
+  setInterval(() => {
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) {
+      document.getElementById('countdown').textContent = '活 动 已 开 始';
+      return;
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    document.getElementById('countdown').textContent = `${String(days).padStart(2, '0')} 天 ${String(hours).padStart(2, '0')} 时 ${String(minutes).padStart(2, '0')} 分`;
+  }, 60000);
+}
+updateCountdown();
+
+// 已报名数动态增长
+setInterval(() => {
+  const el = document.getElementById('registeredCount');
+  const current = parseInt(el.textContent);
+  if (Math.random() > 0.5) {
+    el.textContent = current + 1;
+    // 同步减少剩余
+    const remain = document.getElementById('remainingSeats');
+    const r = parseInt(remain.textContent);
+    if (r > 0) remain.textContent = r - 1;
+  }
+}, 8000);
+
+// 性别选择
+document.querySelectorAll('.gender-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.gender-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+  });
+});
+
+// 协议勾选
+let isAgreed = false;
+document.getElementById('agreement').addEventListener('click', () => {
+  isAgreed = !isAgreed;
+  document.getElementById('checkbox').classList.toggle('checked', isAgreed);
+});
+
+// 显示表单
+function openRegisterModal() {
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('formModal').style.display = 'block';
+  document.getElementById('successModal').style.display = 'none';
+  // 默认选中当前场景
+  document.getElementById('sceneSelect').value = currentScene;
+}
+
+function closeRegisterModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+document.getElementById('registerBtn').addEventListener('click', openRegisterModal);
+document.getElementById('navCta').addEventListener('click', openRegisterModal);
+document.getElementById('modalClose').addEventListener('click', closeRegisterModal);
+document.getElementById('successClose').addEventListener('click', closeRegisterModal);
+document.getElementById('successOk').addEventListener('click', closeRegisterModal);
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeRegisterModal();
+});
+
+// 提交表单
+document.getElementById('registerForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  if (!isAgreed) {
+    alert('请先同意《活动须知》与《用户协议》');
+    return;
+  }
+
+  const formData = new FormData(e.target);
+  const data = {};
+  for (const [k, v] of formData.entries()) {
+    if (k === 'scene' || k === 'remark') continue;
+    data[k] = v;
+  }
+  data.scene = formData.get('scene');
+  data.gender = document.querySelector('.gender-option.active').dataset.value;
+  data.remark = formData.get('remark');
+
+  // 模拟提交，生成报名号
+  const code = 'YJ-2026-0619-' + Math.floor(Math.random() * 900 + 100);
+  document.getElementById('successCode').textContent = code;
+
+  // 显示成功弹窗
+  document.getElementById('formModal').style.display = 'none';
+  document.getElementById('successModal').style.display = 'block';
+
+  // 更新已报名数
+  const reg = document.getElementById('registeredCount');
+  reg.textContent = parseInt(reg.textContent) + 1;
+  const remain = document.getElementById('remainingSeats');
+  remain.textContent = Math.max(0, parseInt(remain.textContent) - 1);
+});
+
+// 导航链接
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
 </script>
 </body>
 </html>

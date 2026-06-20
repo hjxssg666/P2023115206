@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识星图 · 自主学习路径可视化系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: #05080f; color: #cfd9e6;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; }
+
+  /* ============= 变量 ============= */
+  :root {
+    --bg-deep: #05080f;
+    --bg-panel: rgba(12, 20, 35, 0.72);
+    --border: rgba(90, 150, 220, 0.18);
+    --border-active: rgba(120, 180, 240, 0.45);
+    --text-primary: #e8eef8;
+    --text-secondary: #cfd9e6;
+    --text-muted: #6b7890;
+    --accent: #5ab1ff;
+    --accent-glow: rgba(90, 177, 255, 0.28);
+    --yellow: #ffd166;
+    --green: #7ed957;
+    --grey: #3a4a66;
+    --yellow-glow: rgba(255, 209, 102, 0.3);
+    --green-glow: rgba(126, 217, 87, 0.3);
+    --transition: all 0.25s ease;
+  }
+
+  /* ============= 顶部 ============= */
+  .top-bar {
+    height: 56px; background: var(--bg-panel); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; position: relative; z-index: 10;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: radial-gradient(circle at 30% 30%, #5ab1ff, #1a3a6a 70%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff; box-shadow: 0 4px 14px var(--accent-glow);
+  }
+  .brand-title { font-size: 15px; color: var(--text-primary); letter-spacing: 1px; font-weight: 600; }
+  .brand-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
+
+  .top-right { display: flex; align-items: center; gap: 10px; }
+  .btn {
+    padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;
+    background: rgba(90, 177, 255, 0.08); border: 1px solid var(--border);
+    color: var(--text-secondary); letter-spacing: 1px; transition: var(--transition);
+  }
+  .btn:hover { background: rgba(90, 177, 255, 0.18); border-color: var(--border-active); color: var(--text-primary); }
+  .btn-primary { background: linear-gradient(135deg, #5ab1ff, #2a7fdb); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { box-shadow: 0 4px 16px var(--accent-glow); }
+
+  /* ============= 主体三栏 ============= */
+  .container { display: flex; height: calc(100vh - 56px - 48px); }
+
+  /* 左侧：星图列表 */
+  .sidebar {
+    width: 220px; background: var(--bg-panel); backdrop-filter: blur(12px);
+    border-right: 1px solid var(--border); padding: 18px 0; overflow-y: auto;
+  }
+  .sidebar-title {
+    padding: 0 20px 14px; font-size: 11px; color: var(--text-muted);
+    letter-spacing: 2px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+  }
+  .star-item {
+    padding: 12px 20px; cursor: pointer; border-left: 2px solid transparent;
+    display: flex; flex-direction: column; gap: 4px; transition: var(--transition);
+  }
+  .star-item:hover { background: rgba(90, 177, 255, 0.06); }
+  .star-item.active { background: rgba(90, 177, 255, 0.1); border-left-color: var(--accent); }
+  .star-name { font-size: 13px; color: var(--text-primary); letter-spacing: 1px; }
+  .star-meta { font-size: 10px; color: var(--text-muted); }
+  .star-progress { height: 3px; background: rgba(90, 177, 255, 0.1); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .star-progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--yellow)); border-radius: 2px; transition: width 0.4s ease; }
+
+  .sidebar-actions { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .sidebar-section-title { padding: 8px 20px; font-size: 10px; color: var(--text-muted); letter-spacing: 2px; }
+
+  /* 中央：Canvas 区域 */
+  .canvas-area {
+    flex: 1; position: relative; overflow: hidden;
+    background:
+      radial-gradient(ellipse at center, rgba(30, 60, 120, 0.15) 0%, transparent 70%),
+      radial-gradient(circle at 20% 30%, rgba(90, 177, 255, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(255, 209, 102, 0.03) 0%, transparent 40%),
+      #05080f;
+  }
+  #mainCanvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  #mainCanvas:active { cursor: grabbing; }
+
+  /* 中央信息浮窗 */
+  .center-hint {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    padding: 10px 18px; background: var(--bg-panel); backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 12px;
+    color: var(--text-muted); letter-spacing: 1px; z-index: 5;
+  }
+  .center-hint b { color: var(--accent); font-weight: 500; }
+
+  /* 统计浮窗 */
+  .stats {
+    position: absolute; top: 16px; right: 16px; z-index: 5;
+    background: var(--bg-panel); backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
+    min-width: 160px;
+  }
+  .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 11px; }
+  .stat-label { color: var(--text-muted); letter-spacing: 1px; }
+  .stat-value { color: var(--text-primary); font-weight: 500; }
+  .stat-bar { height: 4px; background: rgba(90, 177, 255, 0.08); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .stat-bar-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--green)); transition: width 0.4s ease; }
+
+  /* 掌握说明浮窗 */
+  .legend {
+    position: absolute; bottom: 16px; left: 16px; z-index: 5;
+    background: var(--bg-panel); backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .legend-row { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-grey { background: var(--grey); box-shadow: 0 0 8px rgba(120, 140, 170, 0.4); }
+  .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow-glow); }
+  .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+
+  /* 右侧：详情面板 */
+  .detail-panel {
+    width: 300px; background: var(--bg-panel); backdrop-filter: blur(12px);
+    border-left: 1px solid var(--border); padding: 20px; overflow-y: auto;
+  }
+  .detail-title { font-size: 16px; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 6px; }
+  .detail-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 20px; letter-spacing: 1px; }
+  .detail-section-title {
+    font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
+    padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .detail-empty { font-size: 12px; color: var(--text-muted); line-height: 1.8; padding: 20px 0; text-align: center; }
+  .detail-info-item { padding: 8px 0; font-size: 12px; display: flex; justify-content: space-between; gap: 10px; }
+  .detail-info-item .k { color: var(--text-muted); }
+  .detail-info-item .v { color: var(--text-primary); font-weight: 500; }
+  .detail-note { font-size: 12px; color: var(--text-muted); line-height: 1.8; padding: 10px; background: rgba(90, 177, 255, 0.04); border-radius: 6px; border: 1px solid var(--border); }
+  .detail-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .level-select { display: flex; gap: 8px; margin-top: 10px; }
+  .level-btn {
+    flex: 1; padding: 10px 6px; border-radius: 6px; border: 1px solid var(--border);
+    background: rgba(90, 177, 255, 0.04); cursor: pointer; font-size: 11px;
+    color: var(--text-secondary); letter-spacing: 1px; transition: var(--transition);
+    text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .level-btn:hover { border-color: var(--border-active); }
+  .level-btn.active-0 { background: rgba(120, 140, 170, 0.1); border-color: rgba(120, 140, 170, 0.4); color: #ccd3df; }
+  .level-btn.active-1 { background: rgba(255, 209, 102, 0.12); border-color: rgba(255, 209, 102, 0.5); color: var(--yellow); }
+  .level-btn.active-2 { background: rgba(126, 217, 87, 0.12); border-color: rgba(126, 217, 87, 0.5); color: var(--green); }
+  .level-dot-mini { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* ============= 底部操作栏 ============= */
+  .bottom-bar {
+    height: 48px; background: var(--bg-panel); backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    position: relative; z-index: 10;
+  }
+  .bottom-left, .bottom-right { display: flex; align-items: center; gap: 10px; }
+  .bottom-hint { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
+  .bottom-hint kbd {
+    background: rgba(90, 177, 255, 0.08); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; font-size: 10px; color: var(--text-secondary);
+    font-family: monospace;
+  }
+
+  /* ============= 弹窗：新增星图 ============= */
+  .modal-mask {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px);
+    z-index: 100; display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-mask.show { display: flex; }
+  .modal-box {
+    background: #0c1423; border: 1px solid var(--border-active); border-radius: 10px;
+    padding: 28px; width: 420px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.25s ease;
+  }
+  .modal-title { font-size: 15px; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 6px; }
+  .modal-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 18px; letter-spacing: 1px; }
+  .modal-input {
+    width: 100%; padding: 12px 14px; border-radius: 6px; font-size: 13px;
+    background: rgba(5, 8, 15, 0.8); border: 1px solid var(--border); color: var(--text-primary);
+    outline: none; transition: var(--transition); letter-spacing: 1px;
+  }
+  .modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .preset-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+  .preset-card {
+    padding: 12px; border: 1px solid var(--border); border-radius: 6px;
+    cursor: pointer; transition: var(--transition); background: rgba(90, 177, 255, 0.04);
+    text-align: center;
+  }
+  .preset-card:hover { border-color: var(--border-active); background: rgba(90, 177, 255, 0.08); }
+  .preset-card-name { font-size: 13px; color: var(--text-primary); margin-bottom: 4px; letter-spacing: 1px; }
+  .preset-card-nodes { font-size: 10px; color: var(--text-muted); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ============= Toast ============= */
+  .toast {
+    position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+    padding: 12px 20px; background: var(--bg-panel); backdrop-filter: blur(16px);
+    border: 1px solid var(--border-active); border-radius: 6px; font-size: 12px;
+    color: var(--text-primary); letter-spacing: 1px; z-index: 200; opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+  /* ============= 响应式 ============= */
+  @media (max-width: 900px) {
+    .sidebar { width: 140px; }
+    .star-name { font-size: 11px; }
+    .detail-panel { width: 220px; }
+    .brand-title { font-size: 12px; }
+    .brand-sub { display: none; }
+    .bottom-hint { display: none; }
+    .stats { min-width: 120px; }
+  }
+  @media (max-width: 600px) {
+    .sidebar, .detail-panel { display: none; }
+    .stats { display: none; }
+  }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(90, 177, 255, 0.2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(90, 177, 255, 0.4); }
+</style>
+</head>
+<body>
+
+<!-- 顶部 -->
+<div class="top-bar">
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div>
+      <div class="brand-title">知识星图</div>
+      <div class="brand-sub">Star Map · 自主学习路径可视化</div>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="btn" id="btnNew">+ 新建星图</div>
+    <div class="btn" id="btnAddNode">+ 新节点</div>
+    <div class="btn" id="btnExport">导出图片</div>
+    <div class="btn btn-primary" id="btnShare">分享</div>
+  </div>
+</div>
+
+<!-- 主体三栏 -->
+<div class="container">
+
+  <!-- 左侧 -->
+  <aside class="sidebar">
+    <div class="sidebar-title">我 的 星 图</div>
+    <div id="starList"></div>
+    <div class="sidebar-section-title">— 预 设 领 域 —</div>
+    <div class="sidebar-actions">
+      <div class="btn" data-preset="python">Python 入门</div>
+      <div class="btn" data-preset="data">数据分析</div>
+      <div class="btn" data-preset="design">交互设计</div>
+      <div class="btn" data-preset="web">Web 前端开发</div>
+    </div>
+  </aside>
+
+  <!-- 中央 Canvas -->
+  <main class="canvas-area">
+    <div class="center-hint">
+      拖拽节点 · 单击查看详情 · <b>双击重命名</b> · <b>右键切换掌握程度</b> · 滚轮缩放
+    </div>
+    <canvas id="mainCanvas"></canvas>
+
+    <!-- 统计浮窗 -->
+    <div class="stats">
+      <div class="stat-row"><span class="stat-label">总节点</span><span class="stat-value" id="statTotal">0</span></div>
+      <div class="stat-row"><span class="stat-label">未学</span><span class="stat-value" id="statGrey" style="color:#8ea4bf">0</span></div>
+      <div class="stat-row"><span class="stat-label">在学</span><span class="stat-value" id="statYellow" style="color:var(--yellow)">0</span></div>
+      <div class="stat-row"><span class="stat-label">已掌握</span><span class="stat-value" id="statGreen" style="color:var(--green)">0</span></div>
+      <div class="stat-bar"><div class="stat-bar-fill" id="statProgress" style="width:0%"></div></div>
+    </div>
+
+    <!-- 图例 -->
+    <div class="legend">
+      <div class="legend-row"><div class="legend-dot dot-grey"></div>未学（灰）</div>
+      <div class="legend-row"><div class="legend-dot dot-yellow"></div>在学（黄）</div>
+      <div class="legend-row"><div class="legend-dot dot-green"></div>已掌握（绿）</div>
+    </div>
+  </main>
+
+  <!-- 右侧详情 -->
+  <aside class="detail-panel">
+    <div class="detail-title">节点详情</div>
+    <div class="detail-subtitle">单击任一节点查看信息</div>
+    <div class="detail-section-title">信 息</div>
+    <div id="detailEmpty" class="detail-empty">
+      尚未选中节点<br>点击图中任一星点查看详情
+    </div>
+    <div id="detailContent" style="display:none">
+      <div class="detail-info-item"><span class="k">名称</span><span class="v" id="detailName">—</span></div>
+      <div class="detail-info-item"><span class="k">状态</span><span class="v" id="detailLevel">—</span></div>
+      <div class="detail-info-item"><span class="k">相连节点</span><span class="v" id="detailLinks">0</span></div>
+      <div class="detail-info-item"><span class="k">位置坐标</span><span class="v" id="detailPos">0, 0</span></div>
+      <div style="margin-top:20px" class="detail-section-title">掌 握 程 度</div>
+      <div class="level-select">
+        <div class="level-btn" data-level="0"><div class="level-dot-mini" style="background:#8ea4bf"></div>未学</div>
+        <div class="level-btn" data-level="1"><div class="level-dot-mini" style="background:var(--yellow)"></div>在学</div>
+        <div class="level-btn" data-level="2"><div class="level-dot-mini" style="background:var(--green)"></div>已掌握</div>
+      </div>
+      <div style="margin-top:20px" class="detail-section-title">备 注</div>
+      <div class="detail-note" id="detailNote">单击下方按钮编辑节点，或直接在画布上操作</div>
+      <div class="detail-actions">
+        <div class="btn" id="btnRename">重命名</div>
+        <div class="btn" id="btnCycle">切换掌握程度（灰→黄→绿）</div>
+        <div class="btn" style="background:rgba(255, 120, 120, 0.08);border-color:rgba(255, 120, 120, 0.3);color:#ff9a9a" id="btnDelete">删除节点</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- 底部 -->
+<div class="bottom-bar">
+  <div class="bottom-left">
+    <div class="bottom-hint">快捷键：
+      <kbd>N</kbd> 新节点 &nbsp;
+      <kbd>D</kbd> 删除 &nbsp;
+      <kbd>R</kbd> 重命名 &nbsp;
+      <kbd>空格</kbd> 切换掌握 &nbsp;
+      <kbd>F</kbd> 全屏 &nbsp;
+      <kbd>Esc</kbd> 取消
+    </div>
+  </div>
+  <div class="bottom-right">
+    <div class="bottom-hint">· <span id="appVer">v1.0</span> · 单文件零依赖 ·</div>
+  </div>
+</div>
+
+<!-- 新建星图弹窗 -->
+<div class="modal-mask" id="modalNew">
+  <div class="modal-box">
+    <div class="modal-title">创建新的知识星图</div>
+    <div class="modal-sub">输入你想学的领域，系统将为你生成学习路径</div>
+    <input type="text" class="modal-input" id="newStarInput" placeholder="例如：机器学习 / 日语入门 / UI 设计 / SQL..." maxlength="20">
+    <div style="font-size:10px;color:var(--text-muted);margin-top:10px;letter-spacing:1px">— 或从预设中选一个 —</div>
+    <div class="preset-list">
+      <div class="preset-card" data-preset="python"><div class="preset-card-name">Python 入门</div><div class="preset-card-nodes">12 节点 · 基础编程</div></div>
+      <div class="preset-card" data-preset="data"><div class="preset-card-name">数据分析</div><div class="preset-card-nodes">15 节点 · 统计/工具</div></div>
+      <div class="preset-card" data-preset="design"><div class="preset-card-name">交互设计</div><div class="preset-card-nodes">12 节点 · UX/UI</div></div>
+      <div class="preset-card" data-preset="web"><div class="preset-card-name">Web 前端</div><div class="preset-card-nodes">14 节点 · HTML/CSS/JS</div></div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn" id="btnCancelNew">取消</div>
+      <div class="btn btn-primary" id="btnConfirmNew">创建</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">提示信息</div>
+
+<script>
+/* ============================================================
+   知识星图 · 自主学习路径可视化系统
+   单文件 HTML + Canvas 2D · 零外部依赖
+   ============================================================ */
+
+/* ============== 工具函数 ============== */
+const $ = (id) => document.getElementById(id);
+function toast(msg, ms = 1800) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), ms);
+}
+const uid = () => 'n' + Math.random().toString(36).slice(2, 9);
+
+/* ============== 预设星图 ==============
+   每个预设：nodes + edges + 名称
+*/
+const PRESETS = {
+  python: {
+    name: 'Python 入门',
+    nodes: [
+      '编程基础概念', '变量与类型', '条件判断', '循环', '函数定义',
+      '列表与字典', '字符串操作', '文件读写', '异常处理', '面向对象',
+      '常用库 numpy', '常用库 pandas'
+    ],
+    edges: [
+      [0, 1], [1, 2], [1, 3], [2, 4], [3, 4], [4, 5], [4, 6],
+      [5, 7], [6, 7], [7, 8], [8, 9], [9, 10], [9, 11]
+    ]
+  },
+  data: {
+    name: '数据分析',
+    nodes: [
+      '统计基础', '描述性统计', '概率论', 'Excel 数据清洗', 'Excel 透视表',
+      'SQL 查询', 'Python pandas', '数据可视化', '回归分析', '假设检验',
+      'A/B 测试', '数据报告撰写', '机器学习基础', '商业解读'
+    ],
+    edges: [
+      [0, 1], [0, 2], [1, 3], [1, 4], [2, 8], [2, 9], [3, 5], [4, 5],
+      [5, 6], [6, 7], [8, 9], [9, 10], [7, 11], [10, 11], [11, 12], [12, 13]
+    ]
+  },
+  design: {
+    name: '交互设计',
+    nodes: [
+      '设计思维', '用户画像', '用户访谈', '信息架构', '原型设计',
+      '线框图', '视觉基础', '色彩与排版', '可用性测试', '交互细节',
+      '响应式设计', '无障碍设计'
+    ],
+    edges: [
+      [0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7],
+      [4, 8], [5, 9], [7, 10], [9, 10], [10, 11]
+    ]
+  },
+  web: {
+    name: 'Web 前端开发',
+    nodes: [
+      'HTML 基础', 'CSS 基础', 'CSS 盒模型', 'CSS Flex/Grid', 'CSS 动画',
+      'JavaScript 基础', 'JS DOM 操作', 'JS 异步编程', 'ES6+ 新特性',
+      '浏览器原理', '响应式开发', '构建工具 vite/webpack', '框架 React/Vue',
+      '性能优化'
+    ],
+    edges: [
+      [0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [5, 7], [6, 10],
+      [7, 8], [8, 9], [8, 12], [10, 11], [11, 12], [12, 13]
+    ]
+  }
+};
+
+/* ============== 状态 ============== */
+let starMaps = {};         // { mapId: { name, nodes:[{id,name,x,y,vx,vy,level}], edges:[[id1,id2]] } }
+let currentMapId = null;
+let selectedNodeId = null;
+let hoveredNodeId = null;
+let draggingNodeId = null;
+let dragOffset = { x: 0, y: 0 };
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let viewOffset = { x: 0, y: 0 };
+let viewScale = 1;
+let width = 0, height = 0;
+let canvas, ctx;
+let lastFrame = 0;
+let physicsEnabled = true;
+
+/* ============== localStorage ============== */
+function save() {
+  try {
+    localStorage.setItem('starMaps', JSON.stringify(starMaps));
+    localStorage.setItem('currentMapId', currentMapId);
+  } catch (e) {}
+}
+function load() {
+  try {
+    const s = localStorage.getItem('starMaps');
+    const c = localStorage.getItem('currentMapId');
+    if (s) starMaps = JSON.parse(s);
+    if (c) currentMapId = c;
+  } catch (e) { starMaps = {}; }
+}
+
+/* ============== 创建新星图 ============== */
+function createMap(name, presetKey) {
+  const id = 'map_' + Date.now();
+  let nodes = [];
+  let edges = [];
+  if (presetKey && PRESETS[presetKey]) {
+    const preset = PRESETS[presetKey];
+    nodes = preset.nodes.map((n, i) => ({
+      id: uid(),
+      name: n,
+      x: (Math.random() - 0.5) * 400,
+      y: (Math.random() - 0.5) * 300,
+      vx: 0, vy: 0,
+      level: 0
+    }));
+    edges = preset.edges.map(([a, b]) => [nodes[a].id, nodes[b].id]);
+    if (!name) name = preset.name;
+  } else {
+    // 空星图：一个起点节点
+    nodes = [{
+      id: uid(), name: name || '我的学习目标', x: 0, y: 0, vx: 0, vy: 0, level: 0
+    }];
+    edges = [];
+  }
+  starMaps[id] = { name: name || '未命名星图', nodes, edges };
+  currentMapId = id;
+  save();
+  renderSidebar();
+  updateStats();
+  resetView();
+  return id;
+}
+
+function deleteMap(id) {
+  if (!confirm('确定删除这个星图？')) return;
+  delete starMaps[id];
+  const ids = Object.keys(starMaps);
+  currentMapId = ids.length ? ids[0] : null;
+  if (!currentMapId) {
+    // 默认创建一个
+    createMap('我的学习目标', 'python');
+    return;
+  }
+  save();
+  renderSidebar();
+  updateStats();
+  resetView();
+}
+
+/* ============== 节点操作 ============== */
+function addNode(name) {
+  if (!currentMapId) return;
+  const map = starMaps[currentMapId];
+  const newNode = {
+    id: uid(),
+    name: name || '新节点',
+    x: (Math.random() - 0.5) * 100,
+    y: (Math.random() - 0.5) * 100,
+    vx: 0, vy: 0, level: 0
+  };
+  map.nodes.push(newNode);
+  // 如果有选中节点，自动连线
+  if (selectedNodeId) {
+    map.edges.push([selectedNodeId, newNode.id]);
+  } else if (map.nodes.length > 1) {
+    map.edges.push([map.nodes[map.nodes.length - 2].id, newNode.id]);
+  }
+  selectedNodeId = newNode.id;
+  save();
+  updateStats();
+  renderDetail();
+  toast('✦ 已新增节点');
+}
+
+function deleteNode(id) {
+  if (!currentMapId) return;
+  const map = starMaps[currentMapId];
+  map.nodes = map.nodes.filter(n => n.id !== id);
+  map.edges = map.edges.filter(([a, b]) => a !== id && b !== id);
+  if (selectedNodeId === id) selectedNodeId = null;
+  save();
+  updateStats();
+  renderDetail();
+  toast('— 节点已删除');
+}
+
+function renameNode(id, newName) {
+  if (!currentMapId || !newName) return;
+  const node = starMaps[currentMapId].nodes.find(n => n.id === id);
+  if (node) {
+    node.name = newName;
+    save();
+    renderDetail();
+    renderSidebar();
+  }
+}
+
+function cycleLevel(id) {
+  if (!currentMapId) return;
+  const node = starMaps[currentMapId].nodes.find(n => n.id === id);
+  if (node) {
+    node.level = (node.level + 1) % 3;
+    save();
+    updateStats();
+    renderDetail();
+    renderSidebar();
+    const names = ['未学', '在学', '已掌握'];
+    toast('→ 状态：' + names[node.level]);
+  }
+}
+
+function setNodeLevel(id, level) {
+  const node = starMaps[currentMapId].nodes.find(n => n.id === id);
+  if (node) {
+    node.level = level;
+    save();
+    updateStats();
+    renderDetail();
+    renderSidebar();
+  }
+}
+
+/* ============== 渲染：侧边栏 ============== */
+function renderSidebar() {
+  const list = $('starList');
+  list.innerHTML = '';
+  const ids = Object.keys(starMaps);
+  if (ids.length === 0) {
+    const div = document.createElement('div');
+    div.style.cssText = 'padding:16px 20px;font-size:11px;color:var(--text-muted);letter-spacing:1px;text-align:center';
+    div.textContent = '尚无星图，点击右上 + 新建';
+    list.appendChild(div);
+    return;
+  }
+  ids.forEach(id => {
+    const map = starMaps[id];
+    const total = map.nodes.length;
+    const done = map.nodes.filter(n => n.level > 0).length;
+    const mastered = map.nodes.filter(n => n.level === 2).length;
+    const progressPct = total ? Math.round((mastered / total) * 100) : 0;
+    const item = document.createElement('div');
+    item.className = 'star-item' + (id === currentMapId ? ' active' : '');
+    item.innerHTML = `
+      <div class="star-name">${map.name}</div>
+      <div class="star-meta">${total} 节点 · 已掌握 ${mastered}</div>
+      <div class="star-progress"><div class="star-progress-fill" style="width:${progressPct}%"></div></div>
+    `;
+    item.onclick = () => {
+      currentMapId = id;
+      save();
+      renderSidebar();
+      updateStats();
+      resetView();
+      selectedNodeId = null;
+      renderDetail();
+    };
+    // 双击删除
+    item.ondblclick = (e) => {
+      e.stopPropagation();
+      deleteMap(id);
+    };
+    list.appendChild(item);
+  });
+}
+
+/* ============== 渲染：详情面板 ============== */
+function renderDetail() {
+  if (!selectedNodeId || !currentMapId) {
+    $('detailEmpty').style.display = 'block';
+    $('detailContent').style.display = 'none';
+    return;
+  }
+  const map = starMaps[currentMapId];
+  const node = map.nodes.find(n => n.id === selectedNodeId);
+  if (!node) {
+    $('detailEmpty').style.display = 'block';
+    $('detailContent').style.display = 'none';
+    return;
+  }
+  $('detailEmpty').style.display = 'none';
+  $('detailContent').style.display = 'block';
+  $('detailName').textContent = node.name;
+  const levelNames = ['未学', '在学', '已掌握'];
+  const levelColors = ['#8ea4bf', 'var(--yellow)', 'var(--green)'];
+  const levelEl = $('detailLevel');
+  levelEl.textContent = levelNames[node.level];
+  levelEl.style.color = levelColors[node.level];
+  const links = map.edges.filter(([a, b]) => a === node.id || b === node.id).length;
+  $('detailLinks').textContent = links;
+  $('detailPos').textContent = Math.round(node.x) + ', ' + Math.round(node.y);
+
+  // 掌握程度按钮
+  document.querySelectorAll('.level-btn').forEach((btn, idx) => {
+    btn.className = 'level-btn active-' + node.level;
+    if (idx === node.level) {
+      btn.classList.add('active-' + node.level);
+    }
+  });
+}
+
+/* ============== 渲染：统计 ============== */
+function updateStats() {
+  if (!currentMapId) {
+    ['statTotal', 'statGrey', 'statYellow', 'statGreen'].forEach(id => $(id).textContent = '0');
+    $('statProgress').style.width = '0%';
+    return;
+  }
+  const map = starMaps[currentMapId];
+  const total = map.nodes.length;
+  const grey = map.nodes.filter(n => n.level === 0).length;
+  const yellow = map.nodes.filter(n => n.level === 1).length;
+  const green = map.nodes.filter(n => n.level === 2).length;
+  $('statTotal').textContent = total;
+  $('statGrey').textContent = grey;
+  $('statYellow').textContent = yellow;
+  $('statGreen').textContent = green;
+  $('statProgress').style.width = (total ? Math.round((green / total) * 100) : 0) + '%';
+}
+
+/* ============== Canvas 物理 & 绘制 ============== */
+function worldToScreen(wx, wy) {
+  return { x: width / 2 + (wx + viewOffset.x) * viewScale, y: height / 2 + (wy + viewOffset.y) * viewScale };
+}
+function screenToWorld(sx, sy) {
+  return { x: (sx - width / 2) / viewScale - viewOffset.x, y: (sy - height / 2) / viewScale - viewOffset.y };
+}
+
+function physicsStep(dt) {
+  if (!currentMapId) return;
+  if (!physicsEnabled) return;
+  const map = starMaps[currentMapId];
+  const nodes = map.nodes;
+  const edges = map.edges;
+  if (nodes.length === 0) return;
+
+  // 1. 节点间斥力（反平方律）
+  const repulsion = 2800 * viewScale;
+  for (let i = 0; i < nodes.length; i++) {
+    const a = nodes[i];
+    a.fx = 0; a.fy = 0;
+    for (let j = 0; j < nodes.length; j++) {
+      if (i === j) continue;
+      const b = nodes[j];
+      let dx = a.x - b.x;
+      let dy = a.y - b.y;
+      let d2 = dx * dx + dy * dy;
+      if (d2 < 400) d2 = 400;
+      const d = Math.sqrt(d2);
+      const f = repulsion / d2;
+      a.fx += (dx / d) * f;
+      a.fy += (dy / d) * f;
+    }
+  }
+
+  // 2. 连线的拉力（弹簧）
+  const springK = 0.008;
+  const restLen = 120;
+  for (const [idA, idB] of edges) {
+    const a = nodes.find(n => n.id === idA);
+    const b = nodes.find(n => n.id === idB);
+    if (!a || !b) continue;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const d = Math.sqrt(dx * dx + dy * dy) || 1;
+    const diff = d - restLen;
+    const f = springK * diff;
+    const ux = dx / d, uy = dy / d;
+    a.fx += ux * f;
+    a.fy += uy * f;
+    b.fx -= ux * f;
+    b.fy -= uy * f;
+  }
+
+  // 3. 朝向原点的轻度引力（让整个图聚集）
+  const gravity = 0.002;
+  for (const n of nodes) {
+    n.fx += -n.x * gravity;
+    n.fy += -n.y * gravity;
+  }
+
+  // 4. 积分速度 + 摩擦
+  const damping = 0.86;
+  const dtFactor = Math.min(dt, 32) / 16;
+  for (const n of nodes) {
+    if (n.id === draggingNodeId) continue;
+    n.vx = (n.vx + n.fx * 0.001 * dtFactor) * damping;
+    n.vy = (n.vy + n.fy * 0.001 * dtFactor) * damping;
+    // 限制最大速度
+    const maxV = 8;
+    const v = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+    if (v > maxV) { n.vx = n.vx / v * maxV; n.vy = n.vy / v * maxV; }
+    n.x += n.vx * dtFactor;
+    n.y += n.vy * dtFactor;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, width, height);
+
+  if (!currentMapId) {
+    // 空状态
+    ctx.fillStyle = '#3a4a66';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('点击右上 "+ 新建星图" 或从左侧选择预设', width / 2, height / 2);
+    return;
+  }
+
+  const map = starMaps[currentMapId];
+  const nodes = map.nodes;
+  const edges = map.edges;
+
+  // 绘制连线
+  for (const [idA, idB] of edges) {
+    const a = nodes.find(n => n.id === idA);
+    const b = nodes.find(n => n.id === idB);
+    if (!a || !b) continue;
+    const pa = worldToScreen(a.x, a.y);
+    const pb = worldToScreen(b.x, b.y);
+
+    // 如果两个节点任一为已掌握（绿），则发光连线
+    const maxLevel = Math.max(a.level, b.level);
+    let color;
+    if (maxLevel === 2) color = 'rgba(126, 217, 87, 0.55)';
+    else if (maxLevel === 1) color = 'rgba(255, 209, 102, 0.4)';
+    else color = 'rgba(90, 120, 170, 0.25)';
+
+    // 渐变连线
+    const grad = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color.replace(/[\d\.]+\)$/, '0.1)'));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = (a.level === 2 || b.level === 2) ? 1.6 : 1;
+    ctx.beginPath();
+    ctx.moveTo(pa.x, pa.y);
+    ctx.lineTo(pb.x, pb.y);
+    ctx.stroke();
+  }
+
+  // 绘制节点
+  for (const n of nodes) {
+    const p = worldToScreen(n.x, n.y);
+    const isSelected = n.id === selectedNodeId;
+    const isHovered = n.id === hoveredNodeId;
+
+    // 节点颜色
+    let baseColor, glowColor;
+    if (n.level === 2) { baseColor = '#7ed957'; glowColor = 'rgba(126, 217, 87, 0.6)'; }
+    else if (n.level === 1) { baseColor = '#ffd166'; glowColor = 'rgba(255, 209, 102, 0.6)'; }
+    else { baseColor = '#8ea4bf'; glowColor = 'rgba(142, 164, 191, 0.35)'; }
+
+    const radius = (isSelected ? 14 : 11) * viewScale;
+
+    // 光晕
+    if (isSelected || isHovered || n.level > 0) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius + 10, 0, Math.PI * 2);
+      const gradient = ctx.createRadialGradient(p.x, p.y, radius, p.x, p.y, radius + 10);
+      gradient.addColorStop(0, glowColor);
+      gradient.addColorStop(1, 'rgba(90, 177, 255, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    }
+
+    // 选中环
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(90, 177, 255, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // 主体
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = baseColor;
+    ctx.fill();
+
+    // 内核
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, radius * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.fill();
+
+    // 文字标签
+    if (viewScale > 0.55) {
+      ctx.font = `${Math.max(10, 12 * viewScale)}px -apple-system, "PingFang SC", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = isSelected ? '#e8eef8' : 'rgba(200, 220, 250, 0.85)';
+      ctx.fillText(n.name, p.x, p.y + radius + 6);
+    }
+  }
+}
+
+function loop(t) {
+  const dt = t - lastFrame;
+  lastFrame = t;
+  resize();
+  physicsStep(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const area = document.querySelector('.canvas-area');
+  const w = area.clientWidth;
+  const h = area.clientHeight;
+  if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  width = w;
+  height = h;
+}
+
+function resetView() {
+  viewOffset = { x: 0, y: 0 };
+  viewScale = 1;
+}
+
+/* ============== 鼠标/触摸交互 ============== */
+function getCanvasPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+function findNodeAtScreen(sx, sy) {
+  if (!currentMapId) return null;
+  const nodes = starMaps[currentMapId].nodes;
+  for (const n of nodes) {
+    const p = worldToScreen(n.x, n.y);
+    const dx = sx - p.x;
+    const dy = sy - p.y;
+    if (dx * dx + dy * dy < 18 * 18) return n;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  const pos = getCanvasPos(e);
+  const node = findNodeAtScreen(pos.x, pos.y);
+  if (node) {
+    draggingNodeId = node.id;
+    node.vx = 0; node.vy = 0;
+    dragOffset.x = pos.x - worldToScreen(node.x, node.y).x;
+    dragOffset.y = pos.y - worldToScreen(node.x, node.y).y;
+    if (selectedNodeId !== node.id) {
+      selectedNodeId = node.id;
+      renderDetail();
+    }
+  } else {
+    isPanning = true;
+    panStart.x = pos.x - viewOffset.x * viewScale;
+    panStart.y = pos.y - viewOffset.y * viewScale;
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const pos = getCanvasPos(e);
+  if (draggingNodeId) {
+    // 拖拽节点
+    const map = starMaps[currentMapId];
+    const node = map.nodes.find(n => n.id === draggingNodeId);
+    if (node) {
+      const worldPos = screenToWorld(pos.x - dragOffset.x, pos.y - dragOffset.y);
+      node.x = worldPos.x;
+      node.y = worldPos.y;
+      node.vx = 0; node.vy = 0;
+      renderDetail();
+    }
+  } else if (isPanning) {
+    viewOffset.x = (pos.x - panStart.x) / viewScale;
+    viewOffset.y = (pos.y - panStart.y) / viewScale;
+  } else {
+    // hover 检测
+    const node = findNodeAtScreen(pos.x, pos.y);
+    hoveredNodeId = node ? node.id : null;
+    canvas.style.cursor = node ? 'grab' : 'grab';
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  draggingNodeId = null;
+  isPanning = false;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  draggingNodeId = null;
+  isPanning = false;
+  hoveredNodeId = null;
+});
+
+canvas.addEventListener('click', (e) => {
+  const pos = getCanvasPos(e);
+  const node = findNodeAtScreen(pos.x, pos.y);
+  if (node) {
+    selectedNodeId = node.id;
+    renderDetail();
+  } else {
+    selectedNodeId = null;
+    renderDetail();
+  }
+});
+
+canvas.addEventListener('dblclick', (e) => {
+  const pos = getCanvasPos(e);
+  const node = findNodeAtScreen(pos.x, pos.y);
+  if (node) {
+    const newName = prompt('重命名节点', node.name);
+    if (newName && newName.trim()) renameNode(node.id, newName.trim());
+  }
+});
+
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const pos = getCanvasPos(e);
+  const node = findNodeAtScreen(pos.x, pos.y);
+  if (node) {
+    cycleLevel(node.id);
+  }
+});
+
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const pos = getCanvasPos(e);
+  const worldBefore = screenToWorld(pos.x, pos.y);
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  viewScale *= factor;
+  viewScale = Math.max(0.3, Math.min(3, viewScale));
+  const worldAfter = screenToWorld(pos.x, pos.y);
+  viewOffset.x += worldAfter.x - worldBefore.x;
+  viewOffset.y += worldAfter.y - worldBefore.y;
+}, { passive: false });
+
+/* ============== 键盘快捷键 ============== */
+document.addEventListener('keydown', (e) => {
+  // 如果在输入框，忽略
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'n' || e.key === 'N') {
+    const name = prompt('新节点名称（留空则自动命名）', '');
+    addNode(name || '新节点');
+  } else if (e.key === 'd' || e.key === 'D') {
+    if (selectedNodeId) deleteNode(selectedNodeId);
+  } else if (e.key === 'r' || e.key === 'R') {
+    if (selectedNodeId) {
+      const node = starMaps[currentMapId].nodes.find(n => n.id === selectedNodeId);
+      const name = prompt('重命名节点', node.name);
+      if (name && name.trim()) renameNode(selectedNodeId, name.trim());
+    }
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    if (selectedNodeId) cycleLevel(selectedNodeId);
+  } else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  } else if (e.key === 'Escape') {
+    selectedNodeId = null;
+    renderDetail();
+  } else if (e.key === '+' || e.key === '=') {
+    viewScale = Math.min(3, viewScale * 1.2);
+  } else if (e.key === '-' || e.key === '_') {
+    viewScale = Math.max(0.3, viewScale / 1.2);
+  }
+});
+
+/* ============== 顶部按钮 ============== */
+$('btnNew').onclick = () => {
+  $('modalNew').classList.add('show');
+  setTimeout(() => $('newStarInput').focus(), 100);
+};
+$('btnAddNode').onclick = () => {
+  if (!currentMapId) { toast('请先创建或选择一个星图'); return; }
+  const name = prompt('新节点名称', '');
+  addNode(name || '新节点');
+};
+$('btnExport').onclick = () => {
+  if (!currentMapId) { toast('请先创建或选择一个星图'); return; }
+  // 导出为图片
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = width;
+  tempCanvas.height = height;
+  const tctx = tempCanvas.getContext('2d');
+  // 背景
+  tctx.fillStyle = '#05080f';
+  tctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  // 复制主 canvas
+  tctx.drawImage(canvas, 0, 0);
+  // 添加标题
+  const map = starMaps[currentMapId];
+  tctx.font = '20px -apple-system, "PingFang SC", sans-serif';
+  tctx.fillStyle = '#5ab1ff';
+  tctx.fillText('知识星图 · ' + map.name, 20, 34);
+  tctx.font = '11px -apple-system, sans-serif';
+  tctx.fillStyle = '#8ea4bf';
+  const total = map.nodes.length;
+  const green = map.nodes.filter(n => n.level === 2).length;
+  const pct = total ? Math.round(green / total * 100) : 0;
+  tctx.fillText('共 ' + total + ' 节点 · 已掌握 ' + green + ' · 进度 ' + pct + '%', 20, 54);
+  tctx.fillText('Generated by 知识星图', 20, tempCanvas.height - 14);
+
+  const link = document.createElement('a');
+  link.download = '知识星图_' + map.name + '_' + new Date().toISOString().slice(0, 10) + '.png';
+  link.href = tempCanvas.toDataURL('image/png');
+  link.click();
+  toast('✦ 图片已导出');
+};
+$('btnShare').onclick = () => {
+  if (!currentMapId) { toast('请先创建或选择一个星图'); return; }
+  const map = starMaps[currentMapId];
+  const json = JSON.stringify(map);
+  navigator.clipboard?.writeText(json).then(() => {
+    toast('✓ 星图数据已复制到剪贴板，可粘贴给朋友');
+  }).catch(() => {
+    prompt('手动复制：', json);
+  });
+};
+
+/* ============== 弹窗：新建 ============== */
+$('btnCancelNew').onclick = () => $('modalNew').classList.remove('show');
+$('modalNew').addEventListener('click', (e) => {
+  if (e.target.id === 'modalNew') $('modalNew').classList.remove('show');
+});
+$('btnConfirmNew').onclick = () => {
+  const name = $('newStarInput').value.trim();
+  if (!name) { toast('请输入名称'); return; }
+  createMap(name);
+  $('modalNew').classList.remove('show');
+  $('newStarInput').value = '';
+  toast('✦ 已创建：' + name);
+};
+$('newStarInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('btnConfirmNew').click();
+});
+document.querySelectorAll('[data-preset]').forEach(el => {
+  el.onclick = () => {
+    const preset = el.dataset.preset;
+    createMap(null, preset);
+    $('modalNew').classList.remove('show');
+    toast('✦ 已加载预设：' + PRESETS[preset].name);
+  };
+});
+
+/* ============== 详情按钮 ============== */
+$('btnRename').onclick = () => {
+  if (!selectedNodeId) return;
+  const node = starMaps[currentMapId].nodes.find(n => n.id === selectedNodeId);
+  const name = prompt('重命名节点', node.name);
+  if (name && name.trim()) renameNode(selectedNodeId, name.trim());
+};
+$('btnCycle').onclick = () => {
+  if (selectedNodeId) cycleLevel(selectedNodeId);
+};
+$('btnDelete').onclick = () => {
+  if (selectedNodeId) deleteNode(selectedNodeId);
+};
+document.querySelectorAll('.level-btn').forEach(btn => {
+  btn.onclick = () => {
+    if (!selectedNodeId) return;
+    const lvl = parseInt(btn.dataset.level);
+    setNodeLevel(selectedNodeId, lvl);
+  };
+});
+
+/* ============== 启动 ============== */
+canvas = $('mainCanvas');
+ctx = canvas.getContext('2d');
+load();
+
+// 初次启动：如果没有数据，创建默认
+const ids = Object.keys(starMaps);
+if (ids.length === 0 || !currentMapId || !starMaps[currentMapId]) {
+  createMap('Python 入门', 'python');
+} else {
+  renderSidebar();
+  updateStats();
+}
+renderDetail();
+requestAnimationFrame(loop);
+
+// 欢迎
+setTimeout(() => {
+  toast('✦ 欢迎使用知识星图 · 单击节点开始学习');
+}, 500);
+</script>
+</body>
+</html>
